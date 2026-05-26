@@ -1,0 +1,122 @@
+---
+title: "Visualizing multiple sequence alignments with msaviz"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Visualizing multiple sequence alignments with msaviz}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 3.5,
+  dpi = 120
+)
+```
+
+`msaviz` turns a multiple sequence alignment into a tidy data frame and then
+into a ggplot2 heatmap. This vignette walks through the bundled example
+alignment and shows the main knobs you'll want to reach for.
+
+```{r setup}
+library(msaviz)
+library(ggplot2)
+```
+
+## A small example alignment
+
+The package ships a 20-sequence × 250-position slice of the ribosomal-protein
+alignment from Hug *et al.* (2016):
+
+```{r load}
+aln_path <- system.file("extdata", "hug_ribosomal.fa.gz", package = "msaviz")
+aln <- seqinr::read.alignment(aln_path, format = "fasta")
+alnDF <- msa2DF(aln)
+alnDF
+```
+
+`msa2DF()` returns one row per (sequence, position) cell. The `Aln` column
+records whether each cell matches the reference (`Ref`), differs from it
+(`Alt`), or is a gap (`Gap`); the `Letter` column carries the actual amino-
+acid character.
+
+Because we didn't pass a `reference =`, `msa2DF()` built a consensus sequence
+and compared every other sequence against it.
+
+## Reference- vs letter-coloured heatmaps
+
+The default `column = "Aln"` colouring highlights deviations from the
+reference, which is usually the most informative view for closely related
+sequences:
+
+```{r aln-default}
+msaHeatmap(alnDF)
+```
+
+For a per-residue view, use `column = "Letter"`. The default palette is the
+ggplot2 discrete scale; pass `letter.colours =` to supply your own:
+
+```{r letter}
+msaHeatmap(alnDF, column = "Letter")
+```
+
+```{r letter-custom}
+aa_palette <- setNames(
+  grDevices::hcl.colors(nlevels(alnDF$Letter), palette = "Spectral"),
+  levels(alnDF$Letter)
+)
+msaHeatmap(alnDF, column = "Letter", letter.colours = aa_palette)
+```
+
+## Rasterizing for speed and small files
+
+Large heatmaps render slowly and produce huge vector files. The `raster =
+TRUE` default sends the tile layer through [`rasterGeom()`][rasterGeom] —
+that draws the tiles into an in-memory PNG and then lays the bitmap back
+onto the panel. Output sizes drop from megabytes to kilobytes, and screen
+rendering becomes instant.
+
+To compare, build a non-rasterized version and time it:
+
+```{r raster-off, eval = FALSE}
+msaHeatmap(alnDF, raster = FALSE)
+```
+
+You'd normally only set `raster = FALSE` for very small alignments where you
+want crisp vector output.
+
+## Saving to disk
+
+`saveHeatmap()` is a `ggsave()` wrapper. When you don't pass a size, it
+picks a height that grows with the number of sequences and a width at least
+twice that height (or 100 mm, whichever is bigger):
+
+```{r save, eval = FALSE}
+saveHeatmap(msaHeatmap(alnDF), tempfile(fileext = ".pdf"))
+```
+
+## Extending the plot
+
+`msaHeatmap()` returns a regular `ggplot` object, so anything you'd normally
+add with `+` works:
+
+```{r facet}
+msaHeatmap(alnDF) +
+  theme(axis.text.y = element_text(size = 5)) +
+  labs(title = "Hug et al. (2016) ribosomal proteins — example slice")
+```
+
+## See also
+
+* [`msa2DF()`][msa2DF] — the reshaping step. Use `reference =` to compare
+  against a specific sequence rather than the consensus, and
+  `drop.gaps = FALSE` to keep gap rows for downstream filtering.
+* [`rasterGeom()`][rasterGeom] — usable outside of `msaHeatmap()` to
+  rasterize any ggplot geom.
+
+[msa2DF]: ../reference/msa2DF.html
+[msaHeatmap]: ../reference/msaHeatmap.html
+[rasterGeom]: ../reference/rasterGeom.html

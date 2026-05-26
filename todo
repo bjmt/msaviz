@@ -1,0 +1,64 @@
+- lollipop plots
+- make SNPs look bigger
+- add % id line plot above heatmap
+- ggtree example
+- ComplexHeatmap?
+- get stats about SNPs
+- change SNP labels for specific cases, eg ancient SNPs
+- Rle type blocks with space between lines (see the plasmid_simple figs for andrew tet paper)
+- make a shell script
+- write some util functions to generate some basic stats
+- label all positions with rotated labels
+- dendrograms with ggdendro, seqinr::dist.alignment
+- add a consensus sequence (most freq character, add option to ignore gap char)
+- complexheatmap example with msa2Matrix
+- plot methylation data from a bsseq bam
+
+- always force x-ticks to be integers
+
+- add the option for row / column splits, subsets
+- add blocks of colours on x/yaxis to denote groups of related sequences
+
+To do this, plot blocks/text labels past the max position number and set clip="off"
+in coord_cartesian. Might need to play around with margins/etc to move ytick labels
+away a bit. Maybe use annotation_custom to manually plot the rectangles/text?
+
+# msaHeatmap(filter(alnDF,!is.na(Letter))) +
+#   rasterGeom(geom_xsidehistogram(bins=max(alnDF$Position))))
+
+# msaHeatmap(filter(alnDF,!is.na(Letter))) +
+#   rasterGeom(geom_xsidehistogram(bins=max(alnDF$Position),data=filter(alnDF,Aln=="Alt")))
+
+# msaHeatmap(filter(alnDF,!is.na(Letter))) +
+#   rasterGeom(geom_ysidehistogram(stat="count",fill="grey50",width=.5))+
+#   scale_ysidex_continuous(limits=c(0,1500))
+
+# msaHeatmap(alnDF) +
+#   annotate(geom = "rect", xmin = 535, xmax = 750,
+#     ymin = 4.5, ymax = 5.5, fill = NA, colour = "blue")
+
+# Biostrings fasta alignment: no conversion needed
+# seqinr alignment: structure(unlist(aln$seq), names = aln$nam)
+
+# msaHeatmap(alnDF, "Letter", letter.colours=universalmotif:::DNA_COLOURS)
+# msaHeatmap(alnDF2, "Letter", letter.colours=universalmotif:::AA_COLOURS)
+
+# TODO: ggtree example
+
+
+###################
+fa2png(.c)
+- take any .fast(a|q)[.gz] file and convert it to a png 
+- For sequences which aren't the same size, give an option to change alignment
+  or even allow wrapping (or even stretch each sequence to take the entire row)
+- specify width and height in pixels
+- provide default colours for DNA/RNA/AA, allow custom colour sets
+- give threshold for summarizing function: eg most common base in a block must
+  be a greater fraction than 0.5 in order to give the final colour, otherwise
+  use the colour for N
+- examples to test: the Hug paper alignment; read1 PE150 data from my root
+  csRNA-seq; Arabidopsis proteome; a genome?
+- maybe go from png back to fa?
+- https://github.com/nothings/stb/blob/master/stb_image_resize2.h
+- https://github.com/nothings/stb/blob/master/stb_image_write.h
+- https://github.com/nothings/stb/blob/master/stb_image.h

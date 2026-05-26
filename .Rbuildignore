@@ -1,0 +1,17 @@
+^LICENSE\.md$
+^libpng-1\.6\.40$
+^libpng-1\.6\.40\.tar\.gz$
+^41564_2016_BFnmicrobiol201648_MOESM206_ESM\.txt$
+^test$
+^todo$
+^\.github$
+^\.DS_Store$
+^cran-comments\.md$
+^README\.Rmd$
+^README\.html$
+^Rplots\.pdf$
+^data-raw$
+^.*\.Rproj$
+^\.Rproj\.user$
+^doc$
+^Meta$
