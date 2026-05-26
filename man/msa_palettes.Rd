@@ -8,11 +8,11 @@
 \alias{msa_palette_AA}
 \title{Default colour palettes for nucleic acid and amino acid alignments}
 \format{
-An object of class \code{character} of length 5.
+An object of class \code{character} of length 10.
 
-An object of class \code{character} of length 5.
+An object of class \code{character} of length 10.
 
-An object of class \code{character} of length 21.
+An object of class \code{character} of length 42.
 }
 \usage{
 msa_palette_DNA
@@ -27,7 +27,10 @@ A named character vector of hex colour strings.
 \description{
 Named character vectors that map each letter of an alphabet to a hex
 colour, suitable for passing as \verb{letter.colours =} to
-\code{\link[=msaHeatmap]{msaHeatmap()}} when \code{column = "Letter"}.
+\code{\link[=msaHeatmap]{msaHeatmap()}} when \code{column = "Letter"}. Each palette ships with both
+upper- and lower-case keys so the same palette works whether the
+upstream alignment reader (e.g. \code{\link[seqinr:read.alignment]{seqinr::read.alignment()}}, which
+lowercases by default) preserved case or not.
 }
 \details{
 \code{msa_palette_DNA} covers \verb{A C G T N}. \code{msa_palette_RNA} is the same

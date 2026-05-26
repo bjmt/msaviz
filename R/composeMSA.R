@@ -35,7 +35,10 @@ make_group_strip <- function(heatmap, groups, group.colours = NULL) {
     geom_tile() +
     scale_x_continuous(expand = c(0, 0), name = NULL,
       breaks = NULL) +
-    scale_y_discrete(expand = c(0, 0), name = NULL) +
+    # Match msaHeatmap()'s default discrete y-axis expansion so the strip's
+    # row heights are identical to the heatmap's row heights when stacked
+    # side by side via patchwork.
+    scale_y_discrete(name = NULL) +
     theme(
       legend.position = "none",
       panel.background = element_blank(),

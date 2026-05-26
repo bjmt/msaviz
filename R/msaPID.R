@@ -6,6 +6,12 @@
 #' can be stacked via [composeMSA()] (or any patchwork composition) with
 #' shared coordinates.
 #'
+#' `y.axis.pos` defaults to `"right"` to match [msaHeatmap()]'s default
+#' `names.pos = "right"`. This keeps the panel's left edge flush with the
+#' heatmap's panel's left edge, which is what `composeMSA()` needs for
+#' clean panel alignment when a `left` companion (e.g. [msaDendro()]) is
+#' also present.
+#'
 #' @param alnDF A tibble produced by [msa2DF()].
 #' @param aln.size Total alignment width in positions. If `NULL` (default)
 #'   it is taken from `attr(alnDF, "aln.size")` and falls back to
@@ -16,6 +22,10 @@
 #' @param text.size Size in pt of axis text.
 #' @param hide.x.labels Hide the x-axis text + ticks. Default `TRUE` so
 #'   the track plays nicely as a top strip over a heatmap.
+#' @param y.axis.pos Side of the panel to draw the y-axis on. Defaults to
+#'   `"right"`, matching `msaHeatmap()`'s default `names.pos`. Set to
+#'   `"left"` if you called `msaHeatmap(names.pos = "left")` or are
+#'   showing the PID track standalone.
 #'
 #' @return A ggplot object.
 #'
@@ -32,9 +42,11 @@
 msaPID <- function(alnDF, aln.size = NULL,
   style = c("bar", "line"),
   fill = "grey40", line.colour = "black",
-  text.size = 6, hide.x.labels = TRUE) {
+  text.size = 6, hide.x.labels = TRUE,
+  y.axis.pos = c("right", "left")) {
 
   style <- match.arg(style)
+  y.axis.pos <- match.arg(y.axis.pos)
 
   if (is.null(aln.size)) {
     aln.size <- attributes(alnDF)$aln.size
@@ -55,7 +67,8 @@ msaPID <- function(alnDF, aln.size = NULL,
       breaks = integer_breaks(c(1, aln.size)), name = NULL) +
     scale_y_continuous(limits = c(0, 1), expand = c(0, 0),
       breaks = c(0, 0.5, 1), labels = c("0", "0.5", "1"),
-      name = "% identity") +
+      name = "% identity",
+      position = y.axis.pos) +
     theme(
       legend.position = "none",
       panel.grid.major.x = element_blank(),

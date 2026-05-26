@@ -5,7 +5,8 @@
 \title{Per-position percent identity track}
 \usage{
 msaPID(alnDF, aln.size = NULL, style = c("bar", "line"), fill = "grey40",
-  line.colour = "black", text.size = 6, hide.x.labels = TRUE)
+  line.colour = "black", text.size = 6, hide.x.labels = TRUE,
+  y.axis.pos = c("right", "left"))
 }
 \arguments{
 \item{alnDF}{A tibble produced by \code{\link[=msa2DF]{msa2DF()}}.}
@@ -23,6 +24,11 @@ it is taken from \code{attr(alnDF, "aln.size")} and falls back to
 
 \item{hide.x.labels}{Hide the x-axis text + ticks. Default \code{TRUE} so
 the track plays nicely as a top strip over a heatmap.}
+
+\item{y.axis.pos}{Side of the panel to draw the y-axis on. Defaults to
+\code{"right"}, matching \code{msaHeatmap()}'s default \code{names.pos}. Set to
+\code{"left"} if you called \code{msaHeatmap(names.pos = "left")} or are
+showing the PID track standalone.}
 }
 \value{
 A ggplot object.
@@ -33,6 +39,13 @@ position that match the reference sequence (\code{Aln == "Ref"}). The x-axis
 is configured to line up exactly with \code{\link[=msaHeatmap]{msaHeatmap()}} so the two plots
 can be stacked via \code{\link[=composeMSA]{composeMSA()}} (or any patchwork composition) with
 shared coordinates.
+}
+\details{
+\code{y.axis.pos} defaults to \code{"right"} to match \code{\link[=msaHeatmap]{msaHeatmap()}}'s default
+\code{names.pos = "right"}. This keeps the panel's left edge flush with the
+heatmap's panel's left edge, which is what \code{composeMSA()} needs for
+clean panel alignment when a \code{left} companion (e.g. \code{\link[=msaDendro]{msaDendro()}}) is
+also present.
 }
 \examples{
 aln <- c(
