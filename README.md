@@ -78,15 +78,20 @@ left-side group annotation strip — using `patchwork`:
 
 ``` r
 d <- msaDendro(aln)
-hm <- msaHeatmap(alnDF, row.order = attr(d, "order"))
-groups <- setNames(rep(c("Group A", "Group B"),
-                       length.out = length(attr(d, "order"))),
-                   attr(d, "order"))
+groups <- setNames(rep(c("Bacteria", "Archaea", "Eukarya"),
+                       length.out = length(aln$nam)),
+                   aln$nam)
+group_cols <- c(Bacteria = "#1f77b4", Archaea = "#ff7f0e",
+                Eukarya  = "#2ca02c")
 
-composeMSA(heatmap = hm,
-           top  = msaPID(alnDF),
-           left = d,
-           groups = groups)
+composeMSA(
+  heatmap = msaHeatmap(alnDF, row.order = attr(d, "order"),
+                       legend.pos = "none"),
+  top  = msaPID(alnDF),
+  left = d,
+  groups = groups[attr(d, "order")],
+  group.colours = group_cols
+)
 ```
 
 <img src="man/figures/README-compose-1.png" alt="" width="100%" />
