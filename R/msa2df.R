@@ -15,6 +15,49 @@ matrix2DF <- function(x, rowLevels = NULL, colNames = NULL) {
   df
 }
 
+#' @noRd
+encode_aln <- function(aln_matrix) {
+  # Sort the alphabet so ties in the consensus break alphabetically — this
+  # matches the naive `sort(table(x), decreasing = TRUE)` semantics.
+  letters_vec <- sort(unique.default(c(aln_matrix)))
+  codes <- matrix(
+    match(c(aln_matrix), letters_vec),
+    nrow = nrow(aln_matrix),
+    dimnames = dimnames(aln_matrix)
+  )
+  list(codes = codes, letters = letters_vec)
+}
+
+#' @noRd
+consensus_from_codes <- function(codes, letters_vec, gap.chars = "-",
+  include.gaps = TRUE) {
+  L <- length(letters_vec)
+  counts <- apply(codes, 2, tabulate, nbins = L)
+  if (!is.matrix(counts)) counts <- matrix(counts, nrow = L)
+  if (!include.gaps) {
+    gap_codes <- which(letters_vec %in% gap.chars)
+    if (length(gap_codes)) {
+      counts[gap_codes, ] <- 0L
+    }
+    all_zero <- colSums(counts) == 0L
+    if (any(all_zero)) {
+      gap_idx <- if (length(gap_codes)) gap_codes[1] else {
+        stop("Cannot compute gapless consensus: an entire column is gaps and ",
+          "no gap character is present in the alphabet to fall back to.")
+      }
+      idx <- integer(ncol(counts))
+      idx[!all_zero] <- max.col(t(counts[, !all_zero, drop = FALSE]),
+        ties.method = "first")
+      idx[all_zero] <- gap_idx
+    } else {
+      idx <- max.col(t(counts), ties.method = "first")
+    }
+  } else {
+    idx <- max.col(t(counts), ties.method = "first")
+  }
+  letters_vec[idx]
+}
+
 #' Convert a multiple sequence alignment to a tidy data frame
 #'
 #' Reshapes an aligned set of equal-length sequences into a long-format tibble
@@ -27,6 +70,8 @@ matrix2DF <- function(x, rowLevels = NULL, colNames = NULL) {
 #' (e.g. a `Biostrings` `DNAMultipleAlignment` or `AAMultipleAlignment`).
 #' When `reference` is `NULL` (the default) a consensus sequence is computed
 #' and used as the reference for the `Aln` column.
+#'
+#' Sequence names must be unique; duplicates are rejected with an error.
 #'
 #' @param aln Alignment to convert. See Details.
 #' @param reference Name of the sequence in `aln` to use as reference. When
@@ -74,46 +119,42 @@ msa2DF <- function(aln, reference = NULL, drop.gaps = TRUE, gap.chars = "-",
   if (is.null(names(aln))) {
     names(aln) <- as.character(seq_len(length(aln)))
   }
-  if (!is.null(reference)) {
-    if (is.null(names(aln)) || !reference %in% names(aln)) {
-      stop("No matching reference in alignment")
-    }
+  dup_idx <- which(duplicated(names(aln)))
+  if (length(dup_idx)) {
+    dupes <- unique(names(aln)[dup_idx])
+    stop("Alignment contains duplicate sequence names: ",
+      paste(head(dupes, 5), collapse = ", "),
+      if (length(dupes) > 5) paste0(" (and ", length(dupes) - 5L, " more)") else "",
+      call. = FALSE)
   }
-  if (length(unique(nchar(aln))) != 1) {
-    stop("All sequences in the alignment must be the same size")
+  if (!is.null(reference) && !reference %in% names(aln)) {
+    stop("No matching reference in alignment", call. = FALSE)
   }
+  if (length(unique(nchar(aln))) != 1L) {
+    stop("All sequences in the alignment must be the same size", call. = FALSE)
+  }
+  if (uppercase) aln <- toupper(aln)
   if (verbose) {
     message("Parsing alignment containing ", format(length(aln), big.mark = ","),
       " sequences and ", format(unique(nchar(aln)), big.mark = ","), " positions...")
   }
-  aln2 <- t(as.matrix(as.data.frame(strsplit(aln, split = "", fixed = TRUE),
-        check.names = FALSE)))
+  aln2 <- do.call(rbind, strsplit(aln, "", fixed = TRUE))
+  rownames(aln2) <- names(aln)
   if (verbose) {
     message("Matrix aln object size: ", format(object.size(aln2), units = "Mb"))
   }
+
   if (is.null(reference)) {
-    get_con_let <- function(x) {
-      names(sort(table(x), decreasing = TRUE))[1]
-    }
-    get_con_let_gapless <- function(x) {
-      x <- x[!x %in% gap.chars]
-      if (!length(x)) {
-        gap.chars[1]
-      } else {
-        names(sort(table(x), decreasing = TRUE))[1]
-      }
-    }
-    if (consensus.gaps) {
-      consensus <- apply(aln2, 2, get_con_let)
-    } else {
-      consensus <- apply(aln2, 2, get_con_let_gapless)
-    }
     if ("consensus" %in% rownames(aln2)) {
-      stop("Alignment already contains a sequence named 'consensus'")
+      stop("Alignment already contains a sequence named 'consensus'", call. = FALSE)
     }
+    enc <- encode_aln(aln2)
+    consensus <- consensus_from_codes(enc$codes, enc$letters,
+      gap.chars = gap.chars, include.gaps = consensus.gaps)
     aln2 <- rbind(consensus = consensus, aln2)
     reference <- "consensus"
   }
+
   alnDF <- matrix2DF(aln2, rowLevels = rownames(aln2),
     colNames = c("Sequence", "Position", "Letter"))
   if (verbose) {
@@ -122,20 +163,14 @@ msa2DF <- function(aln, reference = NULL, drop.gaps = TRUE, gap.chars = "-",
   attributes(alnDF)$aln.size <- ncol(aln2)
   attributes(alnDF)$drop.gaps <- drop.gaps
 
-  if (uppercase) alnDF$Letter <- toupper(alnDF$Letter)
-
   ref <- as.character(aln2[reference, ])
-  if (uppercase) ref <- toupper(ref)
   alnDF$Aln <- "Ref"
   alnDF$Aln[alnDF$Letter != ref[alnDF$Position]] <- "Alt"
   alnDF$Aln[alnDF$Letter %in% gap.chars] <- "Gap"
   attributes(alnDF)$reference <- reference
   if (drop.gaps) {
     alnDF <- alnDF[!alnDF$Letter %in% gap.chars, ]
-  } else if (!is.null(reference)) {
-    alnDF$Aln[alnDF$Letter %in% gap.chars] <- "Gap"
-  }
-  if (!drop.gaps) {
+  } else {
     alnDF$Letter[alnDF$Letter %in% gap.chars] <- NA
   }
   alnDF$Aln <- factor(alnDF$Aln, levels = c("Ref", "Alt", "Gap"))

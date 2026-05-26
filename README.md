@@ -70,10 +70,32 @@ Rscript msaHeatmap.R --input aln.fa --output aln.pdf --column Aln
 
 See `--help` for all available options.
 
+## Composing with PID, groups, and a dendrogram
+
+`composeMSA()` lines the heatmap up with optional companion plots — a
+percent-identity track, a hierarchical-clustering dendrogram, and a
+left-side group annotation strip — using `patchwork`:
+
+``` r
+d <- msaDendro(aln)
+hm <- msaHeatmap(alnDF, row.order = attr(d, "order"))
+groups <- setNames(rep(c("Group A", "Group B"),
+                       length.out = length(attr(d, "order"))),
+                   attr(d, "order"))
+
+composeMSA(heatmap = hm,
+           top  = msaPID(alnDF),
+           left = d,
+           groups = groups)
+```
+
+<img src="man/figures/README-compose-1.png" alt="" width="100%" />
+
 ## More
 
 The package vignette walks through `Aln` vs `Letter` colouring, custom
-palettes, and the `raster = TRUE/FALSE` trade-off:
+palettes, the `raster = TRUE/FALSE` trade-off, `posStats()`, and the
+companion plotters:
 
 ``` r
 vignette("msaviz")

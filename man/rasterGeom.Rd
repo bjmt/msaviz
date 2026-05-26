@@ -17,7 +17,10 @@ rasterGeom(geomObj, png.dpi = 150, png.bg = NA,
 \item{png.bg}{Background colour painted under the rasterized geom. Defaults
 to \code{NA} (transparent).}
 
-\item{png.type}{Graphics device type passed through to \code{\link[grDevices:png]{grDevices::png()}}.}
+\item{png.type}{Graphics device type passed through to \code{\link[grDevices:png]{grDevices::png()}}.
+Defaults to \code{getOption("bitmapType")}. When that is \code{NULL} (e.g. on a
+headless Linux server), \code{\link[grDevices:png]{grDevices::png()}}'s own built-in default is
+used.}
 
 \item{png.antialias}{Antialiasing mode passed through to \code{\link[grDevices:png]{grDevices::png()}}.}
 

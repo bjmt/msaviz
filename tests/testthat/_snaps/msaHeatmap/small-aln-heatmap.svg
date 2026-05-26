@@ -54,13 +54,11 @@
 <text x='706.99' y='468.05' style='font-size: 6.00px; font-family: sans;' textLength='13.01px' lengthAdjust='spacingAndGlyphs'>seq3</text>
 <text x='706.99' y='301.88' style='font-size: 6.00px; font-family: sans;' textLength='13.01px' lengthAdjust='spacingAndGlyphs'>seq2</text>
 <text x='706.99' y='135.70' style='font-size: 6.00px; font-family: sans;' textLength='13.01px' lengthAdjust='spacingAndGlyphs'>seq1</text>
-<polyline points='132.15,568.43 132.15,565.69 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='44.05,568.43 44.05,565.69 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='308.35,568.43 308.35,565.69 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
-<polyline points='484.55,568.43 484.55,565.69 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='660.74,568.43 660.74,565.69 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
-<text x='132.15' y='574.75' text-anchor='middle' style='font-size: 6.00px; font-family: sans;' textLength='3.34px' lengthAdjust='spacingAndGlyphs'>2</text>
+<text x='44.05' y='574.75' text-anchor='middle' style='font-size: 6.00px; font-family: sans;' textLength='3.34px' lengthAdjust='spacingAndGlyphs'>1</text>
 <text x='308.35' y='574.75' text-anchor='middle' style='font-size: 6.00px; font-family: sans;' textLength='3.34px' lengthAdjust='spacingAndGlyphs'>4</text>
-<text x='484.55' y='574.75' text-anchor='middle' style='font-size: 6.00px; font-family: sans;' textLength='3.34px' lengthAdjust='spacingAndGlyphs'>6</text>
 <text x='660.74' y='574.75' text-anchor='middle' style='font-size: 6.00px; font-family: sans;' textLength='3.34px' lengthAdjust='spacingAndGlyphs'>8</text>
 <rect x='330.34' y='17.30' width='44.12' height='5.67' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
 <rect x='330.62' y='17.59' width='5.10' height='5.10' style='stroke-width: 0.43; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #000000;' />

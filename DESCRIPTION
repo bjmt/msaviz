@@ -1,6 +1,6 @@
 Package: msaviz
 Title: Multiple sequence alignment visualization
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: 
     person(c("Benjamin", "Jean-Marie"), "Tremblay", , "benjmtremblay@gmail.com",
            role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7441-2951"))
@@ -10,7 +10,8 @@ Description: Provides a handful of useful functions for simplifying
     visualizations of multiple sequence alignments using heatmaps and lollipop
     charts.
 Depends: R (>= 4.0.0)
-Imports: ggplot2, rlang, grid, tibble, grDevices, methods, png, utils
+Imports: ggplot2, rlang, grid, tibble, grDevices, methods, png, utils,
+    patchwork
 Suggests:
     testthat (>= 3.0.0),
     vdiffr,
@@ -18,7 +19,9 @@ Suggests:
     rmarkdown,
     withr,
     seqinr,
-    Biostrings
+    Biostrings,
+    ggdendro,
+    bench
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 License: GPL (>= 3)

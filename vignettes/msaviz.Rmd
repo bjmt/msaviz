@@ -109,6 +109,68 @@ msaHeatmap(alnDF) +
   labs(title = "Hug et al. (2016) ribosomal proteins — example slice")
 ```
 
+## Position summaries with `posStats()`
+
+`posStats()` returns a tidy per-position summary — counts, fraction of
+sequences matching the reference, the most common letter, and Shannon
+entropy:
+
+```{r posstats}
+ps <- posStats(alnDF)
+head(ps)
+```
+
+You can drop that straight into ggplot2 for ad-hoc per-position plots:
+
+```{r posstats-plot, fig.height = 2.4}
+ggplot(ps, aes(Position, entropy)) +
+  geom_col(fill = "grey40") +
+  theme_minimal()
+```
+
+## Built-in DNA / RNA / AA palettes
+
+For per-letter colouring with a sensible default, the package ships three
+named-vector palettes:
+
+```{r palettes}
+msa_palette_DNA
+str(msa_palette_AA)
+```
+
+Pass one directly as `letter.colours =`:
+
+```{r aa-palette, fig.height = 3.2}
+msaHeatmap(alnDF, column = "Letter", letter.colours = msa_palette_AA)
+```
+
+## Composing a heatmap with PID, groups, and a dendrogram
+
+The three companion plotters — `msaPID()`, `msaDendro()`, and the
+`groups =` strip — are stitched together with `composeMSA()`, which uses
+`patchwork` under the hood:
+
+```{r compose, fig.height = 5}
+d <- msaDendro(aln)
+hm <- msaHeatmap(alnDF, row.order = attr(d, "order"))
+pid <- msaPID(alnDF)
+
+# A toy grouping; in practice you'd pull these from your metadata.
+seq_names <- attr(d, "order")
+groups <- setNames(rep(c("Group A", "Group B"), length.out = length(seq_names)),
+  seq_names)
+
+composeMSA(
+  heatmap = hm,
+  top  = pid,
+  left = d,
+  groups = groups
+)
+```
+
+Each piece is also a regular ggplot, so power users can compose them
+manually with `patchwork::wrap_plots()` for custom layouts.
+
 ## See also
 
 * [`msa2DF()`][msa2DF] — the reshaping step. Use `reference =` to compare
@@ -116,7 +178,13 @@ msaHeatmap(alnDF) +
   `drop.gaps = FALSE` to keep gap rows for downstream filtering.
 * [`rasterGeom()`][rasterGeom] — usable outside of `msaHeatmap()` to
   rasterize any ggplot geom.
+* [`consensusSeq()`][consensusSeq] — exposes the per-position consensus
+  calculation as a standalone function.
+* [`integer_breaks()`][integer_breaks] — the tick-position helper used
+  internally by the heatmap and PID track.
 
 [msa2DF]: ../reference/msa2DF.html
 [msaHeatmap]: ../reference/msaHeatmap.html
 [rasterGeom]: ../reference/rasterGeom.html
+[consensusSeq]: ../reference/consensusSeq.html
+[integer_breaks]: ../reference/integer_breaks.html

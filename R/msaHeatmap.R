@@ -90,9 +90,6 @@ saveHeatmap <- function(msaHeatmap, file, height = NULL, width = NULL,
 #' @param legend.pos Where to place the fill legend, or `"none"` to suppress
 #'   it.
 #' @param legend.nrow Number of rows in the legend.
-#' @param groups,group.box.width,group.colours,group.labels,group.pos
-#'   Reserved for upcoming row-group annotation support. Currently accepted
-#'   for forward compatibility but have no effect on the returned plot.
 #' @param raster Logical. Rasterize the tile layer via [rasterGeom()] to
 #'   shrink vector output and speed up rendering. Defaults to `TRUE`.
 #' @param raster.dpi DPI for the rasterized layer.
@@ -124,11 +121,8 @@ msaHeatmap <- function(alnDF, column = c("Aln", "Letter"), gap.colour = NA,
   row.order = levels(alnDF$Sequence), names.pos = c("right", "left"),
   legend.pos = c("top", "bottom", "left", "right", "none"),
   legend.nrow = 1,
-  groups = NULL, group.box.width = grid::unit(2, "mm"),
-  group.colours = colorRampPalette(palette.colors())(length(groups)),
-  group.labels = if (is.factor(groups)) levels(groups) else unique(groups),
-  group.pos = c("left", "right"),
-  raster = TRUE, raster.dpi = 150, raster.type = getOption("bitmapType"),
+  raster = TRUE, raster.dpi = 150,
+  raster.type = getOption("bitmapType"),
   text.size = 6, text.size.x = text.size, text.size.y = text.size,
   text.size.legend = text.size,
   trim.names = TRUE, trim.names.nchar = 25,
@@ -139,7 +133,6 @@ msaHeatmap <- function(alnDF, column = c("Aln", "Letter"), gap.colour = NA,
   names.pos <- match.arg(names.pos)
   legend.pos <- match.arg(legend.pos)
   column <- match.arg(column)
-  group.pos <- match.arg(group.pos)
 
   if (any(!c("Sequence", "Position") %in% colnames(alnDF))) {
     stop("alnDF must contain columns Sequence and Position")
@@ -160,10 +153,7 @@ msaHeatmap <- function(alnDF, column = c("Aln", "Letter"), gap.colour = NA,
   if (is.null(y.breaks)) y.breaks <- waiver()
   if (is.null(y.labels)) y.labels <- waiver()
   if (is.null(x.breaks)) {
-    x.breaks <- scale_x_continuous(limits = c(0.5, aln.size + 0.5))$get_breaks()
-    if (is.na(x.breaks[1])) {
-      x.breaks <- c(1, x.breaks[-1])
-    }
+    x.breaks <- integer_breaks(c(1, aln.size))
   }
 
   if (is.null(row.order)) {
@@ -237,6 +227,7 @@ msaHeatmap <- function(alnDF, column = c("Aln", "Letter"), gap.colour = NA,
         axis.ticks.length.y = unit(0, "pt"))
   }
 
+  attr(p, "row.order") <- row.order
   p
 
 }

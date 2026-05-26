@@ -52,6 +52,8 @@ object that yields a character vector through \code{\link[base:character]{base::
 (e.g. a \code{Biostrings} \code{DNAMultipleAlignment} or \code{AAMultipleAlignment}).
 When \code{reference} is \code{NULL} (the default) a consensus sequence is computed
 and used as the reference for the \code{Aln} column.
+
+Sequence names must be unique; duplicates are rejected with an error.
 }
 \examples{
 aln <- c(

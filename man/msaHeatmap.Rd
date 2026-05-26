@@ -8,10 +8,7 @@ msaHeatmap(alnDF, column = c("Aln", "Letter"), gap.colour = NA,
   aln.colours = c(Alt = "red", Ref = "black"), letter.colours = NULL,
   row.order = levels(alnDF$Sequence), names.pos = c("right", "left"),
   legend.pos = c("top", "bottom", "left", "right", "none"),
-  legend.nrow = 1, groups = NULL, group.box.width = grid::unit(2, "mm"),
-  group.colours = colorRampPalette(palette.colors())(length(groups)),
-  group.labels = if (is.factor(groups)) levels(groups) else unique(groups),
-  group.pos = c("left", "right"), raster = TRUE, raster.dpi = 150,
+  legend.nrow = 1, raster = TRUE, raster.dpi = 150,
   raster.type = getOption("bitmapType"), text.size = 6,
   text.size.x = text.size, text.size.y = text.size,
   text.size.legend = text.size, trim.names = TRUE, trim.names.nchar = 25,
@@ -45,9 +42,6 @@ bottom. Defaults to the factor levels in \code{alnDF$Sequence}.}
 it.}
 
 \item{legend.nrow}{Number of rows in the legend.}
-
-\item{groups, group.box.width, group.colours, group.labels, group.pos}{Reserved for upcoming row-group annotation support. Currently accepted
-for forward compatibility but have no effect on the returned plot.}
 
 \item{raster}{Logical. Rasterize the tile layer via \code{\link[=rasterGeom]{rasterGeom()}} to
 shrink vector output and speed up rendering. Defaults to \code{TRUE}.}

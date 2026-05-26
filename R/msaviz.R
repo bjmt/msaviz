@@ -14,6 +14,6 @@
 #' @importFrom grDevices colorRampPalette palette.colors dev.off rgb
 #' @importFrom grDevices dev.cur dev.set png
 #' @importFrom methods is
-#' @importFrom utils object.size
+#' @importFrom utils object.size head
 #' @importFrom tibble as_tibble
 "_PACKAGE"

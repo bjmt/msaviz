@@ -11,6 +11,7 @@
 ^README\.html$
 ^Rplots\.pdf$
 ^data-raw$
+^bench$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^doc$
