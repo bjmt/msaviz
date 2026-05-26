@@ -90,7 +90,9 @@ composeMSA(
   top  = msaPID(alnDF),
   left = d,
   groups = groups[attr(d, "order")],
-  group.colours = group_cols
+  group.colours = group_cols,
+  heights = c(1, 6),       # PID short, heatmap tall
+  widths  = c(0.5, 0.04, 4) # narrow dendrogram, thin group strip, wide heatmap
 )
 ```
 
