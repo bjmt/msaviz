@@ -5,6 +5,7 @@
 .DS_Store
 .claude/
 *.Rproj
+/todo
 README.html
 Rplots.pdf
 inst/doc
