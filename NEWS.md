@@ -1,3 +1,33 @@
+# msaviz 1.3.0
+
+## New features
+
+* `msaLollipop()` draws a per-sequence lollipop chart from the same
+  `alnDF` produced by `msa2DF()`. One row of the discrete y-axis per
+  sequence, each non-reference cell drawn as a stem with a circular head
+  and an optional `RefLetterPositionAltLetter` label, and a per-position
+  baseline along each row that breaks visibly at gaps. This is the
+  layout used for Supplementary Figure 20 of Hodgins et al. (2023),
+  *Nature Communications* 14:5475, generalised so that the
+  highlighted-cell subset (`highlight`, `highlight.by`), per-cell stem
+  heights (`y =`), and per-head fill colour
+  (`head.fill.by`, `head.fill.colours`) are all user-configurable.
+  Because the y-axis is a single discrete scale (not `facet_wrap`),
+  `msaLollipop()` is a drop-in substitute for `msaHeatmap()` inside
+  `composeMSA()`: dendrogram, row and column group strips, and PID
+  track all line up with lollipop rows without changes to
+  `composeMSA()`.
+* `inst/scripts/msaLollipop.R` adds a CLI sibling to the existing
+  `inst/scripts/msaHeatmap.R`, matching its flag style and producing
+  a lollipop chart from any fasta or alignment file in one shot.
+
+## Bug fixes
+
+* The 1.2.0 `msaHeatmap()` emphasis overlay no longer extends past the
+  plot limits. Cells whose enlarged tile would have crossed
+  `0.5`, `aln.size + 0.5`, or the first/last sequence row are now
+  clipped to the panel instead of being drawn underneath the axis.
+
 # msaviz 1.2.0
 
 ## New features

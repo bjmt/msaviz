@@ -51,8 +51,30 @@ test_that("per-axis emphasize.size.x and emphasize.size.y reach the overlay tile
   p <- msaHeatmap(make_df(), raster = FALSE,
     emphasize.size.x = 2, emphasize.size.y = 1.5)
   expect_length(p$layers, 2L)
-  expect_equal(p$layers[[2]]$aes_params$width, 2)
-  expect_equal(p$layers[[2]]$aes_params$height, 1.5)
+  # The overlay is now a geom_rect with per-row xmin/xmax/ymin/ymax columns
+  # so the size knobs are visible in the layer's data widths/heights.
+  ld <- p$layers[[2]]$data
+  widths <- ld$emph_xmax - ld$emph_xmin
+  heights <- ld$emph_ymax - ld$emph_ymin
+  # Interior cells take the full requested width/height; edge cells get
+  # clipped to the panel limits (smaller).
+  expect_true(any(widths == 2))
+  expect_true(any(heights == 1.5))
+})
+
+test_that("emphasis overlay does not extend past the plot limits", {
+  # Pick an alignment whose Alt cells include positions 1 and aln.size,
+  # so the clipping path is exercised on both sides.
+  df <- msa2DF(c(seq1 = "ACGTACGT", seq2 = "TCGTACGA", seq3 = "ACGTTCGT"),
+    reference = "seq1", drop.gaps = FALSE)
+  aln_size <- attr(df, "aln.size")
+  nrows <- nlevels(df$Sequence)
+  p <- msaHeatmap(df, raster = FALSE, emphasize.size = 3)
+  ld <- p$layers[[2]]$data
+  expect_true(all(ld$emph_xmin >= 0.5))
+  expect_true(all(ld$emph_xmax <= aln_size + 0.5))
+  expect_true(all(ld$emph_ymin >= 0.5))
+  expect_true(all(ld$emph_ymax <= nrows + 0.5))
 })
 
 test_that("emphasize.by switches the overlay filter column", {

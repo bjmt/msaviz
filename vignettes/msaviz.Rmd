@@ -386,6 +386,77 @@ Other distance / linkage choices:
 msaDendro(aln, dist.matrix = "similarity", hclust.method = "complete")
 ```
 
+# Per-sequence lollipops with `msaLollipop()`
+
+`msaLollipop()` is an alternative view of the same `alnDF`. One row of
+a discrete y-axis is allocated per sequence, with each non-reference
+cell drawn as a vertical stem topped with a circular head and an
+optional `RefLetterPositionAltLetter` label. A per-position horizontal
+baseline at each row makes gaps in the alignment show up as visible
+breaks. This is the layout used for Supplementary Figure 20 of Hodgins
+et al. (2023).
+
+Because `msaLollipop()` uses a single discrete y-axis (like
+`msaHeatmap()`), it composes cleanly with `composeMSA()`. With labels
+on, lollipops are most readable on small alignments or short windows
+of larger ones, so we use a toy 4-sequence alignment to introduce
+the layout. Build the `alnDF` with `keep.consensus = TRUE` so the
+`RefLetterPositionAltLetter` labels can include the reference letter:
+
+```{r lollipop-default, fig.height = 2.4}
+toy <- c(
+  seq1 = "ACGTACGTACGTACGTACGT",
+  seq2 = "ACGTACGAACGTACGTACGT",
+  seq3 = "AAGTACGTACGTGCGTACGT",
+  seq4 = "ACGTACGTACGTACGTCCGA"
+)
+toyDF <- msa2DF(toy, reference = "seq1", drop.gaps = FALSE,
+  keep.consensus = TRUE)
+msaLollipop(toyDF)
+```
+
+Head fill can be mapped to any column of `alnDF` via `head.fill.by =`
+with an optional palette in `head.fill.colours =`. Colour by alt
+residue:
+
+```{r lollipop-fill, fig.height = 2.4}
+msaLollipop(toyDF,
+  head.fill.by = "Letter",
+  head.fill.colours = msa_palette_DNA)
+```
+
+On a dense alignment, labels overlap, so the unlabeled form
+reproduces the paper's "lollipop_snps2_nolab" variant on the full
+20-sequence ribosomal slice:
+
+```{r lollipop-no-labels, fig.height = 5}
+alnDF_ll <- msa2DF(aln, drop.gaps = FALSE, keep.consensus = TRUE)
+msaLollipop(alnDF_ll, labels = FALSE)
+```
+
+`row.order =` accepts names that are not present in the data; they
+render as empty rows, reproducing the paper's "REF spacer" trick for
+separating groups of sequences. Shown here on the toy alignment so
+the spacers are visible at a glance:
+
+```{r lollipop-spacers, fig.height = 3.5}
+custom_order <- c("seq1", "spacer1", "seq2", "spacer2", "seq3", "seq4")
+msaLollipop(toyDF, drop.empty = FALSE, row.order = custom_order)
+```
+
+Stem heights are constant by default. Pass a column name to `y =` and
+the stems scale with that column. A synthetic example (a random
+per-cell score) on the full alignment:
+
+```{r lollipop-y, fig.height = 5}
+set.seed(1)
+alnDF_ll$score <- runif(nrow(alnDF_ll), 0.2, 1)
+msaLollipop(alnDF_ll, y = "score", labels = FALSE)
+```
+
+`msaLollipop()` is a drop-in substitute for `msaHeatmap()` inside
+`composeMSA()`; the composition example sits in the next section.
+
 # Composing with `composeMSA()`
 
 `composeMSA()` lays out a heatmap with optional companion plots using
@@ -491,6 +562,21 @@ composeMSA(
 )
 ```
 
+## Lollipop in place of the heatmap
+
+Because `msaLollipop()` carries the same `row.order` and `aln.size`
+attributes as `msaHeatmap()`, it can be passed straight through as the
+`heatmap =` argument and every companion plot still lines up:
+
+```{r compose-lollipop, fig.height = 6}
+composeMSA(
+  heatmap = msaLollipop(alnDF_ll, row.order = attr(d, "order"),
+    labels = FALSE),
+  top  = msaPID(alnDF_ll),
+  left = d
+)
+```
+
 ## Custom compositions
 
 Because every piece is a regular ggplot (or patchwork), you can compose
@@ -506,22 +592,28 @@ patchwork::wrap_plots(
 )
 ```
 
-# Shell script
+# Shell scripts
 
-A standalone CLI ships in `inst/scripts/msaHeatmap.R`:
+Two standalone CLIs ship with the package: `inst/scripts/msaHeatmap.R`
+for the heatmap view, and `inst/scripts/msaLollipop.R` for the lollipop
+view.
 
 ```{r cli-path, eval = FALSE}
-system.file("scripts", "msaHeatmap.R", package = "msaviz")
+system.file("scripts", "msaHeatmap.R",  package = "msaviz")
+system.file("scripts", "msaLollipop.R", package = "msaviz")
 ```
 
-Use it as:
+Use them as:
 
 ```sh
-Rscript msaHeatmap.R --input aln.fa --output aln.pdf --column Aln \
+Rscript msaHeatmap.R  --input aln.fa --output aln.pdf      --column Aln \
   --reference my_ref --keep-gaps --width 200 --height 70
+
+Rscript msaLollipop.R --input aln.fa --output lollipop.pdf \
+  --reference my_ref --width 11.5 --height 7
 ```
 
-See `--help` for all available flags.
+See `--help` on each for all available flags.
 
 # See also
 
@@ -535,6 +627,7 @@ See `--help` for all available flags.
 * [`posStats()`][posStats]: per-position summary tibble.
 * [`msaPID()`][msaPID]: percent-identity track.
 * [`msaDendro()`][msaDendro]: clustering dendrogram.
+* [`msaLollipop()`][msaLollipop]: per-sequence lollipop chart.
 * [`composeMSA()`][composeMSA]: patchwork composition.
 * [`integer_breaks()`][integer_breaks]: integer-only tick positions.
 
@@ -546,5 +639,6 @@ See `--help` for all available flags.
 [posStats]: ../reference/posStats.html
 [msaPID]: ../reference/msaPID.html
 [msaDendro]: ../reference/msaDendro.html
+[msaLollipop]: ../reference/msaLollipop.html
 [composeMSA]: ../reference/composeMSA.html
 [integer_breaks]: ../reference/integer_breaks.html

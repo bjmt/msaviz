@@ -123,7 +123,10 @@ saveHeatmap <- function(msaHeatmap, file, height = NULL, width = NULL,
 #'   Defaults to `1` (no overlay).
 #' @param emphasize.size.x,emphasize.size.y Per-axis expansion factors.
 #'   Default to `emphasize.size`. Values greater than `1` make emphasized
-#'   tiles overlap their neighbours on the corresponding axis.
+#'   tiles overlap their neighbours on the corresponding axis. Cells at
+#'   the edge of the alignment (position `1`, position `aln.size`, first
+#'   or last sequence row) are clipped to the panel so they never extend
+#'   past the plot limits.
 #'
 #' @return A ggplot object.
 #'
@@ -215,8 +218,18 @@ msaHeatmap <- function(alnDF, column = c("Aln", "Letter"), gap.colour = NA,
     emph_rows <- as.character(alnDF[[emphasize.by]]) %in% emphasize
     emph_data <- alnDF[emph_rows, , drop = FALSE]
     if (nrow(emph_data) > 0) {
-      emphGeom <- geom_tile(data = emph_data, colour = NA,
-        width = emphasize.size.x, height = emphasize.size.y)
+      # Cap the enlarged tile at the panel limits so it does not bleed past
+      # the first/last position or first/last sequence row.
+      nrows <- nlevels(alnDF$Sequence)
+      y_idx <- as.integer(emph_data$Sequence)
+      emph_data$emph_xmin <- pmax(emph_data$Position - emphasize.size.x / 2, 0.5)
+      emph_data$emph_xmax <- pmin(emph_data$Position + emphasize.size.x / 2,
+        aln.size + 0.5)
+      emph_data$emph_ymin <- pmax(y_idx - emphasize.size.y / 2, 0.5)
+      emph_data$emph_ymax <- pmin(y_idx + emphasize.size.y / 2, nrows + 0.5)
+      emphGeom <- geom_rect(data = emph_data, colour = NA,
+        aes(xmin = .data[["emph_xmin"]], xmax = .data[["emph_xmax"]],
+            ymin = .data[["emph_ymin"]], ymax = .data[["emph_ymax"]]))
       if (raster) {
         emphGeom <- rasterGeom(emphGeom, png.dpi = raster.dpi,
           png.bg = gap.colour, png.type = raster.type)

@@ -87,7 +87,10 @@ Defaults to \code{1} (no overlay).}
 
 \item{emphasize.size.x, emphasize.size.y}{Per-axis expansion factors.
 Default to \code{emphasize.size}. Values greater than \code{1} make emphasized
-tiles overlap their neighbours on the corresponding axis.}
+tiles overlap their neighbours on the corresponding axis. Cells at
+the edge of the alignment (position \code{1}, position \code{aln.size}, first
+or last sequence row) are clipped to the panel so they never extend
+past the plot limits.}
 }
 \value{
 A ggplot object.

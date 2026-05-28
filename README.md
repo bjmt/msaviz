@@ -8,12 +8,12 @@
 
 `msaviz` is a small R package for visualizing multiple sequence
 alignments (MSAs). It reshapes an alignment into a tidy `tibble` and
-turns it into a ggplot2 heatmap, with a `rasterGeom()` wrapper that
-keeps file sizes and render times sane even for alignments with millions
-of cells.
+renders it either as a ggplot2 heatmap or as a per-sequence lollipop
+chart, with a `rasterGeom()` wrapper that keeps file sizes and render
+times sane even for alignments with millions of cells.
 
 The code in this package was originally written to produce some of the
-figures in [Hodgins et al. (2023), *Nature Communications*
+figures in [Hodgins et al. (2023), *Nature Communications*
 14:5475](https://www.nature.com/articles/s41467-023-41174-0), and was
 later packaged up into this form.
 
@@ -43,11 +43,45 @@ alnDF <- msa2DF(aln)
 msaHeatmap(alnDF)
 ```
 
-<img src="man/figures/README-example-1.png" alt="" width="100%" />
+<img src="man/figures/README-example-1.png" width="100%" />
 
 By default `msaHeatmap()` colours every cell by whether it matches the
 reference sequence (a computed consensus if you don’t pass
 `reference =`). Switch to per-letter colouring with `column = "Letter"`.
+
+## Per-sequence lollipops
+
+`msaLollipop()` is an alternative view of the same `alnDF`. Each
+sequence becomes one row, every non-reference cell is drawn as a
+vertical stem with a circular head, and a per-position baseline shows
+gaps as breaks. This is the form used for Supplementary Figure 20 of
+Hodgins et al. (2023).
+
+``` r
+alnDF_ll <- msa2DF(aln, drop.gaps = FALSE, keep.consensus = TRUE)
+msaLollipop(alnDF_ll, labels = FALSE)
+```
+
+<img src="man/figures/README-lollipop-1.png" width="100%" />
+
+On smaller alignments (or short windows of larger ones), labels are
+readable and heads can be colour-mapped to any column:
+
+``` r
+toy <- c(
+  seq1 = "ACGTACGTACGTACGTACGT",
+  seq2 = "ACGTACGAACGTACGTACGT",
+  seq3 = "AAGTACGTACGTGCGTACGT",
+  seq4 = "ACGTACGTACGTACGTCCGA"
+)
+toyDF <- msa2DF(toy, reference = "seq1", drop.gaps = FALSE,
+  keep.consensus = TRUE)
+msaLollipop(toyDF,
+  head.fill.by = "Letter",
+  head.fill.colours = msa_palette_DNA)
+```
+
+<img src="man/figures/README-lollipop-small-1.png" width="100%" />
 
 ## Saving plots
 
@@ -58,22 +92,26 @@ based on the number of sequences and axis text size:
 saveHeatmap(msaHeatmap(alnDF), "aln.pdf")
 ```
 
-## Shell script
+## Shell scripts
 
-A standalone CLI is shipped in `inst/scripts/msaHeatmap.R`. After
-installing the package:
+Two standalone CLIs ship with the package. `inst/scripts/msaHeatmap.R`
+renders an alignment heatmap; `inst/scripts/msaLollipop.R` renders the
+per-sequence lollipop chart (the form used for Supplementary Figure 20
+of Hodgins et al. 2023).
 
 ``` r
-system.file("scripts", "msaHeatmap.R", package = "msaviz")
+system.file("scripts", "msaHeatmap.R",  package = "msaviz")
+system.file("scripts", "msaLollipop.R", package = "msaviz")
 ```
 
-Use it as:
+Use them as:
 
 ``` sh
-Rscript msaHeatmap.R --input aln.fa --output aln.pdf --column Aln
+Rscript msaHeatmap.R  --input aln.fa --output aln.pdf      --column Aln
+Rscript msaLollipop.R --input aln.fa --output lollipop.pdf --reference E88
 ```
 
-See `--help` for all available options.
+See `--help` for all available options on each.
 
 ## Composing with PID, groups, and a dendrogram
 
@@ -101,13 +139,13 @@ composeMSA(
 )
 ```
 
-<img src="man/figures/README-compose-1.png" alt="" width="100%" />
+<img src="man/figures/README-compose-1.png" width="100%" />
 
 ## More
 
 The package vignette walks through `Aln` vs `Letter` colouring, custom
-palettes, the `raster = TRUE/FALSE` trade-off, `posStats()`, and the
-companion plotters:
+palettes, SNP emphasis, the `raster = TRUE/FALSE` trade-off,
+`posStats()`, the lollipop view, and the rest of the companion plotters:
 
 ``` r
 vignette("msaviz")
