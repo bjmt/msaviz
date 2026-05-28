@@ -1,5 +1,5 @@
 Package: msaviz
-Title: Multiple sequence alignment visualization
+Title: Multiple Sequence Alignment Visualization
 Version: 1.3.0
 Authors@R:
     person(c("Benjamin", "Jean-Marie"), "Tremblay", , "benjmtremblay@gmail.com",
@@ -31,5 +31,6 @@ VignetteBuilder: knitr
 Config/testthat/edition: 3
 License: GPL (>= 3)
 Encoding: UTF-8
+Language: en-GB
 Roxygen: list(markdown = TRUE, old_usage = TRUE)
 RoxygenNote: 7.3.3
