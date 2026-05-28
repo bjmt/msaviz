@@ -23,6 +23,11 @@ knitr::opts_chunk$set(
 ggplot2 heatmap, with a `rasterGeom()` wrapper that keeps file sizes and
 render times sane even for alignments with millions of cells.
 
+The code in this package was originally written to produce some of the
+figures in [Hodgins et al. (2023), *Nature Communications*
+14:5475](https://www.nature.com/articles/s41467-023-41174-0), and was later
+packaged up into this form.
+
 ## Installation
 
 ```{r install, eval = FALSE}

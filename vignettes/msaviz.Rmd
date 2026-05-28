@@ -436,7 +436,7 @@ Use it as:
 
 ```sh
 Rscript msaHeatmap.R --input aln.fa --output aln.pdf --column Aln \
-  --reference my_ref --drop-gaps --width 200 --height 70
+  --reference my_ref --keep-gaps --width 200 --height 70
 ```
 
 See `--help` for all available flags.

@@ -72,11 +72,11 @@ posStats <- function(alnDF, include.gaps = FALSE) {
       entropy[i] <- NA_real_
       next
     }
-    tab <- tabulate(factor(letters_at))
-    labels <- levels(factor(letters_at))
+    f <- factor(letters_at)
+    tab <- tabulate(f)
     max_i <- which.max(tab)
     n_here <- length(letters_at)
-    mostCommon[i] <- labels[max_i]
+    mostCommon[i] <- levels(f)[max_i]
     mostCommonPct[i] <- tab[max_i] / n_here
     p_i <- tab / n_here
     p_i <- p_i[p_i > 0]

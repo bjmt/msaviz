@@ -34,8 +34,15 @@ consensusSeq <- function(aln, gap.chars = "-", include.gaps = TRUE) {
   } else if (!is.character(aln)) {
     aln <- as.character(aln)
   }
-  if (length(unique(nchar(aln))) != 1L) {
+  if (length(aln) == 0L) {
+    stop("Alignment is empty (no sequences)", call. = FALSE)
+  }
+  widths <- nchar(aln)
+  if (length(unique(widths)) != 1L) {
     stop("All sequences in the alignment must be the same size", call. = FALSE)
+  }
+  if (widths[1L] == 0L) {
+    stop("Alignment has zero width (sequences are empty)", call. = FALSE)
   }
   aln2 <- do.call(rbind, strsplit(aln, "", fixed = TRUE))
   enc <- encode_aln(aln2)

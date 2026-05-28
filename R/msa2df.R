@@ -116,6 +116,9 @@ msa2DF <- function(aln, reference = NULL, drop.gaps = TRUE, gap.chars = "-",
   } else if (!is.character(aln)) {
     aln <- as.character(aln)
   }
+  if (length(aln) == 0L) {
+    stop("Alignment is empty (no sequences)", call. = FALSE)
+  }
   if (is.null(names(aln))) {
     names(aln) <- as.character(seq_len(length(aln)))
   }
@@ -130,8 +133,12 @@ msa2DF <- function(aln, reference = NULL, drop.gaps = TRUE, gap.chars = "-",
   if (!is.null(reference) && !reference %in% names(aln)) {
     stop("No matching reference in alignment", call. = FALSE)
   }
-  if (length(unique(nchar(aln))) != 1L) {
+  widths <- nchar(aln)
+  if (length(unique(widths)) != 1L) {
     stop("All sequences in the alignment must be the same size", call. = FALSE)
+  }
+  if (widths[1L] == 0L) {
+    stop("Alignment has zero width (sequences are empty)", call. = FALSE)
   }
   if (uppercase) aln <- toupper(aln)
   if (verbose) {

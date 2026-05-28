@@ -24,15 +24,15 @@ group level. When \code{NULL}, ggplot's default discrete palette is used.}
 when \code{top} is supplied, else \code{1}.}
 
 \item{widths}{Numeric vector of column widths. Defaults are chosen to
-give the heatmap roughly 4× the width of the dendrogram and 80× the
-width of the group strip.}
+give the heatmap roughly 4 times the width of the dendrogram and 40
+times the width of the group strip.}
 }
 \value{
 A patchwork object (which prints and saves like a ggplot).
 }
 \description{
 Lays out \code{\link[=msaHeatmap]{msaHeatmap()}} together with optional companion plots using
-\link[patchwork:patchwork-package]{patchwork::patchwork} so x- and y-axes line up cleanly:
+\link{patchwork} so x- and y-axes line up cleanly:
 }
 \details{
 \itemize{

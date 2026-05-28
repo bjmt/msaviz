@@ -4,7 +4,7 @@ args <- commandArgs(TRUE)
 
 helpFun <- function(quit = !interactive()) {
   message(appendLF = FALSE, paste0(collapse = "\n", c(
-"msaHeatmap v1.0.0  Copyright (C) 2023 Benjamin Jean-Marie Tremblay",
+"msaHeatmap v1.1.1  Copyright (C) 2023-2026 Benjamin Jean-Marie Tremblay",
 "",
 "Usage:  msaHeatmap [options] --input file.fa",
 "",
@@ -21,7 +21,9 @@ helpFun <- function(quit = !interactive()) {
 "                    'Letter'.",
 " --reference <str>  Sequence name to use as the reference. Default: a",
 "                    consensus sequence is computed.",
-" --drop-gaps        Drop alignment columns with gaps. Off by default.",
+" --keep-gaps        Keep gap cells in the long-format output (drawn as",
+"                    transparent tiles). By default gap cells are dropped,",
+"                    matching the msa2DF() default.",
 " --width     <num>  Output width in mm. Default: auto.",
 " --height    <num>  Output height in mm. Default: auto.",
 " --verbose          Print progress information.",
@@ -90,7 +92,8 @@ inFile <- getArg("input", optional = FALSE)
 outFile <- getArg("output", default = "aln.pdf")
 column <- getArg("column", default = "Aln", inputs = c("Aln", "Letter"))
 reference <- getArg("reference", default = NULL)
-dropGaps <- getArg("drop-gaps", isFlag = TRUE)
+keepGaps <- getArg("keep-gaps", isFlag = TRUE)
+dropGaps <- !keepGaps
 widthArg <- getArg("width", default = NULL)
 heightArg <- getArg("height", default = NULL)
 verbose <- getArg("verbose", isFlag = TRUE)
@@ -110,7 +113,7 @@ if (!is.null(heightArg)) {
 }
 
 if (verbose) {
-  message("msaHeatmap v1.0.0")
+  message("msaHeatmap v1.1.1")
   message("-----------------")
   message("Using the following library paths to look for packages:\n",
     paste0(paste0("  ", .libPaths()), collapse = "\n"))

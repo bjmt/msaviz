@@ -1,3 +1,34 @@
+# msaviz 1.1.1
+
+## Bug fixes
+
+* The bundled CLI `inst/scripts/msaHeatmap.R` now drops gap cells by default,
+  matching the `msa2DF()` default. The old `--drop-gaps` flag, whose
+  documentation said it was off by default but which in fact aligned with
+  the `msa2DF()` default of dropping, has been replaced by `--keep-gaps`
+  (off by default) so the CLI and the R function now agree.
+* The CLI help banner now reports the correct package version.
+* `saveHeatmap()`'s auto-sized height now reads the legend position and row
+  count from attributes that `msaHeatmap()` stashes on the returned plot,
+  instead of poking into ggplot2's `$guides$nrow` (which moved between
+  versions, leaving the multi-row legend adjustment as silent dead code).
+* `msa2DF()` and `consensusSeq()` now give a clear error on empty and
+  zero-width alignments instead of the previous cryptic message.
+* The `composeMSA()` documentation for `widths` corrected: the default
+  heatmap-to-strip ratio is 40, not 80.
+
+## Internal
+
+* `posStats()` now builds the per-position factor once per position instead
+  of twice.
+* `msaHeatmap()` factors the `Sequence` column once before constructing the
+  ggplot, instead of refactoring inside the `aes()` call.
+* `.claude/` (created by Claude Code session local settings) is now
+  ignored in builds and git.
+* The vdiffr snapshot test now `announce_snapshot_file()`s its output, so
+  running `devtools::test()` without `vdiffr` installed no longer prunes
+  the snapshot SVG from the source tree.
+
 # msaviz 1.1.0
 
 ## New features

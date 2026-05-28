@@ -37,12 +37,16 @@ saveHeatmap <- function(msaHeatmap, file, height = NULL, width = NULL,
     if (is.null(tsize)) {
       tsize <- 8.8
     }
+    # Read the legend hints stashed by msaHeatmap() rather than poking into
+    # ggplot2's internals, whose shape varies between versions.
+    legend_pos <- attr(msaHeatmap, "legend.pos")
+    legend_nrow <- attr(msaHeatmap, "legend.nrow")
     extra <- 6
-    if (!is.null(msaHeatmap$theme$legend.position) &&
-      msaHeatmap$theme$legend.position == "none") {
+    if (identical(legend_pos, "none")) {
       extra <- extra - 3
-    } else if (!is.null(msaHeatmap$guides$nrow) && msaHeatmap$guides$nrow > 1) {
-      extra <- extra + 2 * (msaHeatmap$guides$nrow - 1)
+    } else if (is.numeric(legend_nrow) && length(legend_nrow) == 1L &&
+      legend_nrow > 1) {
+      extra <- extra + 2 * (legend_nrow - 1)
     }
     height <- ((nseqs + extra) * tsize) / ggplot2::.pt
     height <- convertUnit(unit(height, "mm"), unit, valueOnly = TRUE)
@@ -177,8 +181,9 @@ msaHeatmap <- function(alnDF, column = c("Aln", "Letter"), gap.colour = NA,
     y.labels[tofix] <- paste0(strtrim(y.labels[tofix], max(c(1, trim.names.nchar - 3))), "...")
   }
 
-  p <- ggplot(alnDF, aes(.data[["Position"]],
-      factor(as.character(.data$Sequence), levels = rev(row.order)),
+  alnDF$Sequence <- factor(as.character(alnDF$Sequence), levels = rev(row.order))
+
+  p <- ggplot(alnDF, aes(.data[["Position"]], .data[["Sequence"]],
       fill = .data[[column]])) +
     tileGeom +
     scale_y_discrete(position = names.pos, breaks = y.breaks, labels = y.labels,
@@ -228,6 +233,8 @@ msaHeatmap <- function(alnDF, column = c("Aln", "Letter"), gap.colour = NA,
   }
 
   attr(p, "row.order") <- row.order
+  attr(p, "legend.pos") <- legend.pos
+  attr(p, "legend.nrow") <- legend.nrow
   p
 
 }

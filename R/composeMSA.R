@@ -77,8 +77,8 @@ make_group_strip <- function(heatmap, groups, group.colours = NULL) {
 #' @param heights Numeric vector of row heights. Defaults to `c(1, 4)`
 #'   when `top` is supplied, else `1`.
 #' @param widths Numeric vector of column widths. Defaults are chosen to
-#'   give the heatmap roughly 4× the width of the dendrogram and 80× the
-#'   width of the group strip.
+#'   give the heatmap roughly 4 times the width of the dendrogram and 40
+#'   times the width of the group strip.
 #'
 #' @return A patchwork object (which prints and saves like a ggplot).
 #'

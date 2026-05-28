@@ -1,6 +1,6 @@
 Package: msaviz
 Title: Multiple sequence alignment visualization
-Version: 1.1.0
+Version: 1.1.1
 Authors@R: 
     person(c("Benjamin", "Jean-Marie"), "Tremblay", , "benjmtremblay@gmail.com",
            role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7441-2951"))

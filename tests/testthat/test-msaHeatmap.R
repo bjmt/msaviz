@@ -33,6 +33,9 @@ test_that("msaHeatmap can be built and printed without warnings", {
 })
 
 test_that("snapshot of a small heatmap stays stable", {
+  # Announce the snapshot before the skip so testthat does not prune it from
+  # tests/testthat/_snaps/ when vdiffr is unavailable locally.
+  testthat::announce_snapshot_file(name = "small-aln-heatmap.svg")
   skip_if_not_installed("vdiffr")
   vdiffr::expect_doppelganger(
     "small-aln-heatmap",

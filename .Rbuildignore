@@ -5,6 +5,7 @@
 ^test$
 ^todo$
 ^\.github$
+^\.claude$
 ^\.DS_Store$
 ^cran-comments\.md$
 ^README\.Rmd$
