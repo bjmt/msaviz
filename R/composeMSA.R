@@ -93,7 +93,7 @@ make_group_strip <- function(heatmap, groups, group.colours = NULL) {
 #' Compose an MSA heatmap with a PID track, dendrogram, and/or group strips
 #'
 #' Lays out [msaHeatmap()] together with optional companion plots using
-#' [patchwork] so x- and y-axes line up cleanly:
+#' [patchwork::patchwork-package] so x- and y-axes line up cleanly:
 #'
 #' * `top`: a ggplot to stack above the heatmap (typically [msaPID()]).
 #'   Its x-axis must cover the same range as the heatmap.

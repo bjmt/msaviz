@@ -42,7 +42,7 @@ A patchwork object (which prints and saves like a ggplot).
 }
 \description{
 Lays out \code{\link[=msaHeatmap]{msaHeatmap()}} together with optional companion plots using
-\link{patchwork} so x- and y-axes line up cleanly:
+\link[patchwork:patchwork-package]{patchwork::patchwork-package} so x- and y-axes line up cleanly:
 }
 \details{
 \itemize{
