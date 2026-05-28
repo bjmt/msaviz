@@ -107,6 +107,23 @@ saveHeatmap <- function(msaHeatmap, file, height = NULL, width = NULL,
 #'   breaks and labels.
 #' @param hide.x.labels,hide.y.labels Hide axis text and ticks on the
 #'   respective axis.
+#' @param x.labels.rotate,y.labels.rotate Rotation angle in degrees applied
+#'   to the axis text on each axis. Defaults to `0` (no rotation). Useful
+#'   for fitting every position label on long alignments
+#'   (`x.labels.rotate = 90` plus a denser `x.breaks =`).
+#' @param emphasize Character vector of values to emphasize by drawing the
+#'   matching cells as enlarged tiles overlaid on the base layer. Defaults
+#'   to `"Alt"` (the natural "make SNPs pop" case). Set to `NULL` or
+#'   `character(0)` to disable. The overlay only renders when at least one
+#'   of `emphasize.size.x` or `emphasize.size.y` is greater than `1`.
+#' @param emphasize.by Name of the column in `alnDF` to match `emphasize`
+#'   against. Defaults to `"Aln"` so the SNP case works regardless of
+#'   `column`. Set to `"Letter"` to enlarge specific residues.
+#' @param emphasize.size Master expansion factor for emphasized cells.
+#'   Defaults to `1` (no overlay).
+#' @param emphasize.size.x,emphasize.size.y Per-axis expansion factors.
+#'   Default to `emphasize.size`. Values greater than `1` make emphasized
+#'   tiles overlap their neighbours on the corresponding axis.
 #'
 #' @return A ggplot object.
 #'
@@ -131,7 +148,12 @@ msaHeatmap <- function(alnDF, column = c("Aln", "Letter"), gap.colour = NA,
   text.size.legend = text.size,
   trim.names = TRUE, trim.names.nchar = 25,
   x.breaks = NULL, x.labels = NULL, y.breaks = NULL, y.labels = NULL,
-  hide.x.labels = FALSE, hide.y.labels = FALSE
+  hide.x.labels = FALSE, hide.y.labels = FALSE,
+  x.labels.rotate = 0, y.labels.rotate = 0,
+  emphasize = "Alt", emphasize.by = "Aln",
+  emphasize.size = 1,
+  emphasize.size.x = emphasize.size,
+  emphasize.size.y = emphasize.size
 ) {
 
   names.pos <- match.arg(names.pos)
@@ -183,9 +205,30 @@ msaHeatmap <- function(alnDF, column = c("Aln", "Letter"), gap.colour = NA,
 
   alnDF$Sequence <- factor(as.character(alnDF$Sequence), levels = rev(row.order))
 
+  emphGeom <- NULL
+  if ((emphasize.size.x > 1 || emphasize.size.y > 1) &&
+      length(emphasize) > 0) {
+    if (!emphasize.by %in% colnames(alnDF)) {
+      stop("emphasize.by = '", emphasize.by, "' is not a column in alnDF",
+        call. = FALSE)
+    }
+    emph_rows <- as.character(alnDF[[emphasize.by]]) %in% emphasize
+    emph_data <- alnDF[emph_rows, , drop = FALSE]
+    if (nrow(emph_data) > 0) {
+      emphGeom <- geom_tile(data = emph_data, colour = NA,
+        width = emphasize.size.x, height = emphasize.size.y)
+      if (raster) {
+        emphGeom <- rasterGeom(emphGeom, png.dpi = raster.dpi,
+          png.bg = gap.colour, png.type = raster.type)
+      }
+    }
+  }
+
   p <- ggplot(alnDF, aes(.data[["Position"]], .data[["Sequence"]],
       fill = .data[[column]])) +
-    tileGeom +
+    tileGeom
+  if (!is.null(emphGeom)) p <- p + emphGeom
+  p <- p +
     scale_y_discrete(position = names.pos, breaks = y.breaks, labels = y.labels,
       name = NULL) +
     scale_x_continuous(limits = c(0.5, aln.size + 0.5), expand = c(0, 0),
@@ -220,6 +263,25 @@ msaHeatmap <- function(alnDF, column = c("Aln", "Letter"), gap.colour = NA,
   }
 
   p <- p + guides(fill = guide_legend(nrow = legend.nrow, byrow = TRUE))
+
+  if (x.labels.rotate != 0) {
+    x_hjust <- if (x.labels.rotate %% 180 == 0) 0.5 else 1
+    x_vjust <- if (abs(x.labels.rotate) == 90) 0.5 else 1
+    p <- p + theme(
+      axis.text.x = element_text(angle = x.labels.rotate,
+        hjust = x_hjust, vjust = x_vjust,
+        size = text.size.x, colour = "black")
+    )
+  }
+  if (y.labels.rotate != 0) {
+    y_hjust <- if (y.labels.rotate %% 180 == 0) 1 else 0.5
+    y_vjust <- 0.5
+    p <- p + theme(
+      axis.text.y = element_text(angle = y.labels.rotate,
+        hjust = y_hjust, vjust = y_vjust,
+        size = text.size.y, colour = "black")
+    )
+  }
 
   if (hide.x.labels) {
     p <- p +

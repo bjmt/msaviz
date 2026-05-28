@@ -32,6 +32,48 @@ test_that("msaHeatmap can be built and printed without warnings", {
   })
 })
 
+test_that("x.labels.rotate and y.labels.rotate set the corresponding theme angles", {
+  p <- msaHeatmap(make_df(), raster = FALSE,
+    x.labels.rotate = 90, y.labels.rotate = 45)
+  expect_equal(p$theme$axis.text.x$angle, 90)
+  expect_equal(p$theme$axis.text.y$angle, 45)
+})
+
+test_that("emphasize.size = 1 adds no overlay; > 1 adds a second layer", {
+  p1 <- msaHeatmap(make_df(), raster = FALSE)
+  expect_length(p1$layers, 1L)
+
+  p2 <- msaHeatmap(make_df(), raster = FALSE, emphasize.size = 1.5)
+  expect_length(p2$layers, 2L)
+})
+
+test_that("per-axis emphasize.size.x and emphasize.size.y reach the overlay tile", {
+  p <- msaHeatmap(make_df(), raster = FALSE,
+    emphasize.size.x = 2, emphasize.size.y = 1.5)
+  expect_length(p$layers, 2L)
+  expect_equal(p$layers[[2]]$aes_params$width, 2)
+  expect_equal(p$layers[[2]]$aes_params$height, 1.5)
+})
+
+test_that("emphasize.by switches the overlay filter column", {
+  df <- make_df()
+  # Filter on Letter instead of Aln. Three sequences * one position with "T" =
+  # the overlay data should contain exactly the rows whose Letter is "T".
+  p <- msaHeatmap(df, raster = FALSE,
+    emphasize = "T", emphasize.by = "Letter", emphasize.size = 1.5)
+  expect_equal(
+    nrow(p$layers[[2]]$data),
+    sum(df$Letter == "T", na.rm = TRUE)
+  )
+})
+
+test_that("emphasize.by errors clearly on a missing column", {
+  expect_error(
+    msaHeatmap(make_df(), emphasize.by = "NoSuch", emphasize.size = 1.5),
+    "is not a column in alnDF"
+  )
+})
+
 test_that("snapshot of a small heatmap stays stable", {
   # Announce the snapshot before the skip so testthat does not prune it from
   # tests/testthat/_snaps/ when vdiffr is unavailable locally.

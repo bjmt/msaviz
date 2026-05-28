@@ -13,7 +13,10 @@ msaHeatmap(alnDF, column = c("Aln", "Letter"), gap.colour = NA,
   text.size.x = text.size, text.size.y = text.size,
   text.size.legend = text.size, trim.names = TRUE, trim.names.nchar = 25,
   x.breaks = NULL, x.labels = NULL, y.breaks = NULL, y.labels = NULL,
-  hide.x.labels = FALSE, hide.y.labels = FALSE)
+  hide.x.labels = FALSE, hide.y.labels = FALSE, x.labels.rotate = 0,
+  y.labels.rotate = 0, emphasize = "Alt", emphasize.by = "Aln",
+  emphasize.size = 1, emphasize.size.x = emphasize.size,
+  emphasize.size.y = emphasize.size)
 }
 \arguments{
 \item{alnDF}{A tibble produced by \code{\link[=msa2DF]{msa2DF()}}. Must contain at minimum the
@@ -63,6 +66,28 @@ breaks and labels.}
 
 \item{hide.x.labels, hide.y.labels}{Hide axis text and ticks on the
 respective axis.}
+
+\item{x.labels.rotate, y.labels.rotate}{Rotation angle in degrees applied
+to the axis text on each axis. Defaults to \code{0} (no rotation). Useful
+for fitting every position label on long alignments
+(\code{x.labels.rotate = 90} plus a denser \verb{x.breaks =}).}
+
+\item{emphasize}{Character vector of values to emphasize by drawing the
+matching cells as enlarged tiles overlaid on the base layer. Defaults
+to \code{"Alt"} (the natural "make SNPs pop" case). Set to \code{NULL} or
+\code{character(0)} to disable. The overlay only renders when at least one
+of \code{emphasize.size.x} or \code{emphasize.size.y} is greater than \code{1}.}
+
+\item{emphasize.by}{Name of the column in \code{alnDF} to match \code{emphasize}
+against. Defaults to \code{"Aln"} so the SNP case works regardless of
+\code{column}. Set to \code{"Letter"} to enlarge specific residues.}
+
+\item{emphasize.size}{Master expansion factor for emphasized cells.
+Defaults to \code{1} (no overlay).}
+
+\item{emphasize.size.x, emphasize.size.y}{Per-axis expansion factors.
+Default to \code{emphasize.size}. Values greater than \code{1} make emphasized
+tiles overlap their neighbours on the corresponding axis.}
 }
 \value{
 A ggplot object.

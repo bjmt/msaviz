@@ -17,7 +17,7 @@ matrix2DF <- function(x, rowLevels = NULL, colNames = NULL) {
 
 #' @noRd
 encode_aln <- function(aln_matrix) {
-  # Sort the alphabet so ties in the consensus break alphabetically — this
+  # Sort the alphabet so ties in the consensus break alphabetically; this
   # matches the naive `sort(table(x), decreasing = TRUE)` semantics.
   letters_vec <- sort(unique.default(c(aln_matrix)))
   codes <- matrix(

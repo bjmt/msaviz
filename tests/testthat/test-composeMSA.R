@@ -36,3 +36,29 @@ test_that("groups produce a strip with one tile per sequence", {
   out <- composeMSA(heatmap = p_hm, groups = groups)
   expect_s3_class(out, "patchwork")
 })
+
+test_that("col.groups returns a patchwork and rejects length mismatches", {
+  df <- make_df()
+  p_hm <- msaHeatmap(df)
+  aln_size <- attr(df, "aln.size")
+  col_groups <- rep(c("L", "R"), c(4, aln_size - 4))
+  out <- composeMSA(heatmap = p_hm, col.groups = col_groups)
+  expect_s3_class(out, "patchwork")
+
+  expect_error(
+    composeMSA(heatmap = p_hm, col.groups = c("L", "R")),
+    "has length 2 but the heatmap covers"
+  )
+})
+
+test_that("col.groups and groups can be combined", {
+  df <- make_df()
+  p_hm <- msaHeatmap(df)
+  aln_size <- attr(df, "aln.size")
+  out <- composeMSA(
+    heatmap = p_hm,
+    groups = c(seq1 = "A", seq2 = "A", seq3 = "B", seq4 = "B"),
+    col.groups = rep(c("L", "R"), c(4, aln_size - 4))
+  )
+  expect_s3_class(out, "patchwork")
+})

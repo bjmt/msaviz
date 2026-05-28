@@ -77,9 +77,9 @@ See `--help` for all available options.
 
 ## Composing with PID, groups, and a dendrogram
 
-`composeMSA()` lines the heatmap up with optional companion plots — a
-percent-identity track, a hierarchical-clustering dendrogram, and a
-left-side group annotation strip — using `patchwork`:
+`composeMSA()` lines the heatmap up (using `patchwork`) with optional
+companion plots: a percent-identity track, a hierarchical-clustering
+dendrogram, and a left-side group annotation strip.
 
 ``` r
 d <- msaDendro(aln)

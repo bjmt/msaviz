@@ -2,10 +2,11 @@
 % Please edit documentation in R/composeMSA.R
 \name{composeMSA}
 \alias{composeMSA}
-\title{Compose an MSA heatmap with a PID track, dendrogram, and/or group strip}
+\title{Compose an MSA heatmap with a PID track, dendrogram, and/or group strips}
 \usage{
 composeMSA(heatmap, top = NULL, left = NULL, groups = NULL,
-  group.colours = NULL, heights = NULL, widths = NULL)
+  group.colours = NULL, col.groups = NULL, col.group.colours = NULL,
+  heights = NULL, widths = NULL)
 }
 \arguments{
 \item{heatmap}{A ggplot returned by \code{\link[=msaHeatmap]{msaHeatmap()}}.}
@@ -20,12 +21,21 @@ Names must match the sequence names in \code{heatmap}.}
 \item{group.colours}{Named character vector of fill colours, one per
 group level. When \code{NULL}, ggplot's default discrete palette is used.}
 
-\item{heights}{Numeric vector of row heights. Defaults to \code{c(1, 4)}
-when \code{top} is supplied, else \code{1}.}
+\item{col.groups}{Optional length-\code{aln.size} character or factor vector
+of column (position) group labels. Drawn as a horizontal strip above
+the heatmap.}
+
+\item{col.group.colours}{Named character vector of fill colours for the
+column-group strip. When \code{NULL}, ggplot's default discrete palette is
+used.}
+
+\item{heights}{Numeric vector of row heights. Defaults to
+\code{c(top = 1, col_strip = 0.15, heatmap = 4)}, with the rows
+corresponding to optional pieces dropped when those pieces are absent.}
 
 \item{widths}{Numeric vector of column widths. Defaults are chosen to
 give the heatmap roughly 4 times the width of the dendrogram and 40
-times the width of the group strip.}
+times the width of the row-group strip.}
 }
 \value{
 A patchwork object (which prints and saves like a ggplot).
@@ -36,14 +46,19 @@ Lays out \code{\link[=msaHeatmap]{msaHeatmap()}} together with optional companio
 }
 \details{
 \itemize{
-\item \code{top} — a ggplot to stack above the heatmap (typically \code{\link[=msaPID]{msaPID()}}).
+\item \code{top}: a ggplot to stack above the heatmap (typically \code{\link[=msaPID]{msaPID()}}).
 Its x-axis must cover the same range as the heatmap.
-\item \code{left} — a ggplot to place to the left of the heatmap (typically
+\item \code{left}: a ggplot to place to the left of the heatmap (typically
 \code{\link[=msaDendro]{msaDendro()}}). Its y-coordinates must match the heatmap's row order.
 If \code{left} carries an \code{"order"} attribute (as \code{msaDendro()} adds) and
 that order does not match \code{heatmap}, a warning fires.
-\item \code{groups} — a named character or factor vector keyed by sequence name.
+\item \code{groups}: a named character or factor vector keyed by sequence name.
 Drawn as a thin coloured strip just to the left of the heatmap.
+\item \code{col.groups}: a character or factor vector of length \code{aln.size},
+one entry per alignment position. Drawn as a thin coloured strip just
+above the heatmap (below \code{top} if both are present). Adjacent
+identical labels naturally render as a single contiguous block, so
+runs are easy to construct with \code{rep()}.
 }
 }
 \examples{

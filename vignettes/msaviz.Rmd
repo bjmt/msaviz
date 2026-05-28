@@ -39,7 +39,7 @@ length(aln$seq)
 nchar(aln$seq[[1]])
 ```
 
-`msaviz` doesn't depend on a particular alignment reader — anything that
+`msaviz` doesn't depend on a particular alignment reader; anything that
 yields a named character vector works. `Biostrings` multiple-alignment
 classes are accepted too (gated here on the package being installed):
 
@@ -161,6 +161,18 @@ msaHeatmap(alnDF, x.breaks = c(1, 50, 100, 150, 200, 250),
   x.labels = paste0("p", c(1, 50, 100, 150, 200, 250)))
 ```
 
+To annotate every position on a long alignment, combine a denser `x.breaks =`
+with `x.labels.rotate =` so the labels fit vertically:
+
+```{r layout-rotate}
+msaHeatmap(alnDF,
+  x.breaks = seq(1, 250, by = 10),
+  x.labels.rotate = 90,
+  text.size.x = 4)
+```
+
+`y.labels.rotate =` does the same for the sequence-name axis.
+
 ## Custom row order
 
 `row.order =` controls top-to-bottom sequence order:
@@ -183,6 +195,43 @@ msaHeatmap(alnDF, legend.pos = "none", hide.y.labels = TRUE) +
   labs(title = "Highlighting positions 80-120")
 ```
 
+## Emphasising specific cells
+
+In a dense heatmap a single non-reference cell can be one pixel wide, easy
+to miss when zoomed out. `emphasize.size` adds a second tile layer on top
+of the base layer with enlarged tiles so the cells of interest overlap
+their neighbours and stay visible at any zoom level.
+
+The default `emphasize = "Alt"`, `emphasize.by = "Aln"` matches the
+"make SNPs pop" use case, so bumping `emphasize.size` alone is enough:
+
+```{r emphasize-snp}
+msaHeatmap(alnDF, emphasize.size = 1.5)
+```
+
+`emphasize.size.x` and `emphasize.size.y` allow asymmetric expansion: a
+wider-than-tall overlay reads as a vertical streak in long alignments,
+making column-conserved differences pop:
+
+```{r emphasize-asym}
+msaHeatmap(alnDF, emphasize.size.x = 2.5, emphasize.size.y = 1.2)
+```
+
+The feature is general: `emphasize.by =` picks which column of `alnDF` to
+match against, and `emphasize =` lists the values to enlarge. To
+emphasise specific residues in a `column = "Letter"` heatmap (for
+example, highlighting cysteines and tryptophans):
+
+```{r emphasize-letter}
+msaHeatmap(alnDF,
+  column = "Letter", letter.colours = msa_palette_AA,
+  emphasize = c("C", "W"),
+  emphasize.by = "Letter",
+  emphasize.size = 1.8)
+```
+
+Set `emphasize.size = 1` (the default) to disable the overlay entirely.
+
 # Saving with `saveHeatmap()`
 
 `saveHeatmap()` is a `ggsave()` wrapper that picks a reasonable size from
@@ -203,8 +252,9 @@ saveHeatmap(msaHeatmap(alnDF), tempfile(fileext = ".png"),
 
 Alignments with hundreds of thousands of cells produce huge SVG/PDF output
 when drawn as vector rectangles. `msaHeatmap(raster = TRUE)` (the default)
-sends the tile layer through `rasterGeom()` — drawn into an in-memory PNG
-at `raster.dpi` and laid back onto the panel as a single bitmap.
+sends the tile layer through `rasterGeom()`, which draws it into an
+in-memory PNG at `raster.dpi` and lays it back onto the panel as a
+single bitmap.
 
 ```{r raster-default}
 msaHeatmap(alnDF, raster = TRUE, raster.dpi = 96, legend.pos = "none")
@@ -229,9 +279,9 @@ ggplot(dots, aes(x, y)) +
 
 # Position summaries with `posStats()`
 
-`posStats()` returns one row per alignment position — counts, gap counts,
-the fraction of sequences matching the reference, the most common letter
-and its frequency, plus Shannon entropy:
+`posStats()` returns one row per alignment position with counts, gap
+counts, the fraction of sequences matching the reference, the most
+common letter and its frequency, plus Shannon entropy:
 
 ```{r posstats}
 ps <- posStats(alnDF)
@@ -315,8 +365,8 @@ clusters with `hclust()`, and returns a ggplot dendrogram whose y-axis
 lines up with the heatmap's row order. The leaf order is attached as the
 `"order"` attribute.
 
-Default orientation — root on the left, leaves on the right (drop-in
-companion for a heatmap):
+Default orientation, with the root on the left and the leaves on the
+right (drop-in companion for a heatmap):
 
 ```{r dendro-flipped, fig.width = 3, fig.height = 5}
 d <- msaDendro(aln)
@@ -339,8 +389,8 @@ msaDendro(aln, dist.matrix = "similarity", hclust.method = "complete")
 # Composing with `composeMSA()`
 
 `composeMSA()` lays out a heatmap with optional companion plots using
-`patchwork` under the hood. Each of the four roles — heatmap, top, left,
-groups — is independent.
+`patchwork` under the hood. Each of the four roles (heatmap, top, left,
+groups) is independent.
 
 ## Heatmap + PID
 
@@ -380,6 +430,38 @@ composeMSA(
   heatmap = msaHeatmap(alnDF),
   groups = groups,
   group.colours = group_cols
+)
+```
+
+## Heatmap + column group strip
+
+`col.groups =` is the same idea on the x-axis: a length-`aln.size` vector
+where each entry labels one alignment position. Adjacent identical labels
+render as a single contiguous block, so runs of positions (UTR / CDS /
+UTR, exons, domains, primer regions, ...) are easy to build with `rep()`:
+
+```{r compose-col-groups, fig.height = 4}
+aln_size <- attr(alnDF, "aln.size")
+col_groups <- rep(c("5'UTR", "CDS", "3'UTR"),
+  c(60, 120, aln_size - 180))
+col_cols <- c("5'UTR" = "#a6cee3", "CDS" = "#1f78b4",
+              "3'UTR" = "#b2df8a")
+composeMSA(
+  heatmap = msaHeatmap(alnDF, legend.pos = "none"),
+  col.groups = col_groups,
+  col.group.colours = col_cols
+)
+```
+
+Row and column strips compose together:
+
+```{r compose-both-strips, fig.height = 4}
+composeMSA(
+  heatmap = msaHeatmap(alnDF, legend.pos = "none"),
+  groups = groups,
+  group.colours = group_cols,
+  col.groups = col_groups,
+  col.group.colours = col_cols
 )
 ```
 
@@ -443,18 +525,18 @@ See `--help` for all available flags.
 
 # See also
 
-* [`msa2DF()`][msa2DF] — the reshaping step. `reference =`, `drop.gaps =`,
+* [`msa2DF()`][msa2DF]: the reshaping step. `reference =`, `drop.gaps =`,
   `keep.consensus =`, `consensus.gaps =`, `uppercase =`, `verbose =`.
-* [`msaHeatmap()`][msaHeatmap] — the main plot.
-* [`saveHeatmap()`][saveHeatmap] — auto-sized `ggsave()` wrapper.
-* [`rasterGeom()`][rasterGeom] — usable outside `msaHeatmap()` to
+* [`msaHeatmap()`][msaHeatmap]: the main plot.
+* [`saveHeatmap()`][saveHeatmap]: auto-sized `ggsave()` wrapper.
+* [`rasterGeom()`][rasterGeom]: usable outside `msaHeatmap()` to
   rasterize any ggplot geom.
-* [`consensusSeq()`][consensusSeq] — standalone consensus.
-* [`posStats()`][posStats] — per-position summary tibble.
-* [`msaPID()`][msaPID] — percent-identity track.
-* [`msaDendro()`][msaDendro] — clustering dendrogram.
-* [`composeMSA()`][composeMSA] — patchwork composition.
-* [`integer_breaks()`][integer_breaks] — integer-only tick positions.
+* [`consensusSeq()`][consensusSeq]: standalone consensus.
+* [`posStats()`][posStats]: per-position summary tibble.
+* [`msaPID()`][msaPID]: percent-identity track.
+* [`msaDendro()`][msaDendro]: clustering dendrogram.
+* [`composeMSA()`][composeMSA]: patchwork composition.
+* [`integer_breaks()`][integer_breaks]: integer-only tick positions.
 
 [msa2DF]: ../reference/msa2DF.html
 [msaHeatmap]: ../reference/msaHeatmap.html

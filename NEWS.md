@@ -1,3 +1,32 @@
+# msaviz 1.2.0
+
+## New features
+
+* `msaHeatmap()` gains `x.labels.rotate` and `y.labels.rotate` (degrees)
+  for rotating the position and sequence-name axis text. Useful for
+  long alignments where every position label needs to fit on the x-axis
+  (combine with `x.breaks = seq_len(aln.size)`).
+* `msaHeatmap()` gains an emphasis overlay layer controlled by
+  `emphasize`, `emphasize.by`, and `emphasize.size{,.x,.y}`. Cells whose
+  `alnDF[[emphasize.by]]` matches `emphasize` are drawn as a second tile
+  layer on top of the base, with widths and heights scaled by the size
+  knobs. Defaults to `emphasize = "Alt"` / `emphasize.by = "Aln"` so the
+  natural "make SNPs visually pop" case is just a one-line opt-in:
+  `msaHeatmap(alnDF, emphasize.size = 1.5)`. Generalises easily to other
+  highlights, e.g. enlarging cysteines in a Letter-coloured heatmap with
+  `emphasize = "C", emphasize.by = "Letter"`.
+* `composeMSA()` gains `col.groups` and `col.group.colours` for an
+  x-axis (column) group annotation strip, mirroring the existing
+  `groups` / `group.colours` y-axis strip. Pass a length-`aln.size`
+  character or factor vector with one label per alignment position;
+  adjacent identical labels render as a single contiguous block.
+
+## Documentation
+
+* DESCRIPTION rewritten to drop the dangling "lollipop charts" claim and
+  reflect the feature set added since 1.0.0 (PID track, dendrogram, row
+  and column group strips, palettes, CLI).
+
 # msaviz 1.1.1
 
 ## Bug fixes
@@ -49,7 +78,7 @@
 * `posStats()` returns one row per position with non-gap count, gap count,
   fraction matching the reference, most-common letter, that letter's
   frequency, and Shannon entropy.
-* `msa_palette_DNA`, `msa_palette_RNA`, `msa_palette_AA` — drop-in
+* `msa_palette_DNA`, `msa_palette_RNA`, `msa_palette_AA` provide drop-in
   `letter.colours =` palettes for the standard alphabets.
 * `integer_breaks()` is exported as a tick-position helper for the
   position axis.
@@ -81,7 +110,7 @@
 * `msaHeatmap()` lost the never-implemented `groups`, `group.box.width`,
   `group.colours`, `group.labels`, and `group.pos` arguments. Pass
   `groups =` and `group.colours =` to `composeMSA()` instead. No code
-  that worked under 1.0.0 stops working — those arguments were silently
+  that worked under 1.0.0 stops working, since those arguments were silently
   ignored.
 
 # msaviz 1.0.0
