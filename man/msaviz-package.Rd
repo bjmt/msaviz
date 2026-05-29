@@ -6,8 +6,10 @@
 \alias{msaviz-package}
 \title{msaviz: Multiple sequence alignment visualization}
 \description{
-Provides a handful of useful functions for simplifying visualizations of
-multiple sequence alignments using heatmaps and lollipop charts.
+A small set of functions for turning a multiple sequence alignment into a
+tidy data frame and then visualizing it, either as a ggplot2 heatmap or as
+a per-sequence lollipop chart, with a few companion plots that compose
+cleanly alongside it.
 }
 \seealso{
 Useful links:

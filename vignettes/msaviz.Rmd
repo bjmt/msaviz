@@ -18,9 +18,10 @@ knitr::opts_chunk$set(
 ```
 
 `msaviz` turns a multiple sequence alignment into a tidy data frame and then
-into a ggplot2 heatmap, with companion plots (percent-identity track,
-dendrogram, group annotation) that compose cleanly via `patchwork`. This
-vignette walks the full public API with a worked example for every knob.
+into a ggplot2 heatmap, with a handful of companion plots (a percent-identity
+track, a dendrogram, group annotation) that compose cleanly via `patchwork`.
+This vignette walks through the full public API, with a worked example for
+each knob along the way.
 
 ```{r setup}
 library(msaviz)
@@ -40,8 +41,9 @@ nchar(aln$seq[[1]])
 ```
 
 `msaviz` doesn't depend on a particular alignment reader; anything that
-yields a named character vector works. `Biostrings` multiple-alignment
-classes are accepted too (gated here on the package being installed):
+yields a named character vector will work. `Biostrings` multiple-alignment
+classes are accepted too (gated here on the package actually being
+installed):
 
 ```{r biostrings}
 if (requireNamespace("Biostrings", quietly = TRUE)) {
@@ -58,7 +60,7 @@ if (requireNamespace("Biostrings", quietly = TRUE)) {
 
 `msa2DF()` reshapes the alignment into a tidy tibble with one row per
 (sequence, position) cell. The `Aln` column records each cell's relationship
-to the reference (`Ref` / `Alt` / `Gap`); the `Letter` column carries the
+to the reference (`Ref` / `Alt` / `Gap`), and the `Letter` column carries the
 actual residue.
 
 ```{r msa2df-default}
@@ -66,9 +68,13 @@ alnDF <- msa2DF(aln)
 alnDF
 ```
 
+(Note that the gap cells and the synthetic consensus row are both dropped by
+default, so the tibble has fewer rows than the full sequence × position
+grid.)
+
 Because no `reference =` was passed, `msa2DF()` computed a per-position
-consensus and used it as the reference. To compare against a specific
-sequence instead, pass `reference =`:
+consensus and used that as the reference. To compare against a specific
+sequence instead, just pass `reference =`:
 
 ```{r msa2df-ref}
 ref_name <- aln$nam[1]
@@ -94,14 +100,15 @@ msa2DF(aln, consensus.gaps = FALSE)
 # Heatmaps with `msaHeatmap()`
 
 The default heatmap colours each cell by whether it matches the reference,
-which is the most useful view for closely related sequences:
+which is often the most useful view for closely related sequences:
 
 ```{r aln-default}
 msaHeatmap(alnDF)
 ```
 
-For per-residue colouring, set `column = "Letter"`. The package ships
-sensible default palettes for the standard alphabets:
+For per-residue colouring, set `column = "Letter"`. The package ships with
+sensible default palettes for the standard alphabets, so you don't have to
+build one yourself:
 
 ```{r letter-aa}
 msaHeatmap(alnDF, column = "Letter", letter.colours = msa_palette_AA)
@@ -197,13 +204,13 @@ msaHeatmap(alnDF, legend.pos = "none", hide.y.labels = TRUE) +
 
 ## Emphasising specific cells
 
-In a dense heatmap a single non-reference cell can be one pixel wide, easy
-to miss when zoomed out. `emphasize.size` adds a second tile layer on top
-of the base layer with enlarged tiles so the cells of interest overlap
-their neighbours and stay visible at any zoom level.
+In a dense heatmap a single non-reference cell can end up only one pixel
+wide, which is easy to miss when zoomed out. `emphasize.size` adds a second
+tile layer on top of the base layer, with enlarged tiles, so that the cells
+of interest overlap their neighbours and stay visible at any zoom level.
 
-The default `emphasize = "Alt"`, `emphasize.by = "Aln"` matches the
-"make SNPs pop" use case, so bumping `emphasize.size` alone is enough:
+The defaults (`emphasize = "Alt"`, `emphasize.by = "Aln"`) already match the
+"make the SNPs pop" case, so bumping `emphasize.size` on its own is enough:
 
 ```{r emphasize-snp}
 msaHeatmap(alnDF, emphasize.size = 1.5)
@@ -218,9 +225,9 @@ msaHeatmap(alnDF, emphasize.size.x = 2.5, emphasize.size.y = 1.2)
 ```
 
 The feature is general: `emphasize.by =` picks which column of `alnDF` to
-match against, and `emphasize =` lists the values to enlarge. To
-emphasise specific residues in a `column = "Letter"` heatmap (for
-example, highlighting cysteines and tryptophans):
+match against, and `emphasize =` lists the values to enlarge. So to
+emphasise specific residues in a `column = "Letter"` heatmap (say,
+highlighting the cysteines and tryptophans):
 
 ```{r emphasize-letter}
 msaHeatmap(alnDF,
@@ -250,11 +257,11 @@ saveHeatmap(msaHeatmap(alnDF), tempfile(fileext = ".png"),
 
 # Rasterization
 
-Alignments with hundreds of thousands of cells produce huge SVG/PDF output
-when drawn as vector rectangles. `msaHeatmap(raster = TRUE)` (the default)
-sends the tile layer through `rasterGeom()`, which draws it into an
-in-memory PNG at `raster.dpi` and lays it back onto the panel as a
-single bitmap.
+Alignments with hundreds of thousands of cells produce enormous SVG/PDF
+output when drawn as vector rectangles (one rectangle per cell adds up
+quickly). `msaHeatmap(raster = TRUE)`, which is the default, sends the tile
+layer through `rasterGeom()`, which draws it into an in-memory PNG at
+`raster.dpi` and lays it back onto the panel as a single bitmap.
 
 ```{r raster-default}
 msaHeatmap(alnDF, raster = TRUE, raster.dpi = 96, legend.pos = "none")
@@ -594,9 +601,9 @@ patchwork::wrap_plots(
 
 # Shell scripts
 
-Two standalone CLIs ship with the package: `inst/scripts/msaHeatmap.R`
-for the heatmap view, and `inst/scripts/msaLollipop.R` for the lollipop
-view.
+Two standalone command-line scripts ship with the package:
+`inst/scripts/msaHeatmap.R` for the heatmap view, and
+`inst/scripts/msaLollipop.R` for the lollipop view.
 
 ```{r cli-path, eval = FALSE}
 system.file("scripts", "msaHeatmap.R",  package = "msaviz")

@@ -8,14 +8,15 @@
 
 `msaviz` is a small R package for visualizing multiple sequence
 alignments (MSAs). It reshapes an alignment into a tidy `tibble` and
-renders it either as a ggplot2 heatmap or as a per-sequence lollipop
-chart, with a `rasterGeom()` wrapper that keeps file sizes and render
-times sane even for alignments with millions of cells.
+then renders it as either a ggplot2 heatmap or a per-sequence lollipop
+chart. A `rasterGeom()` wrapper keeps file sizes and render times in
+check, even on alignments with millions of cells (which is usually where
+plain vector output starts to struggle).
 
-The code in this package was originally written to produce some of the
-figures in [Hodgins et al. (2023), *Nature Communications*
+The code here started life producing some of the figures in [Hodgins et
+al. (2023), *Nature Communications*
 14:5475](https://www.nature.com/articles/s41467-023-41174-0), and was
-later packaged up into this form.
+later tidied up into this package.
 
 ## Installation
 
@@ -24,10 +25,10 @@ later packaged up into this form.
 remotes::install_github("bjmt/msaviz")
 ```
 
-`msaviz` does not depend on any particular alignment reader. Use either
-[seqinr](https://cran.r-project.org/package=seqinr) or
+`msaviz` doesn’t depend on any particular alignment reader, so you can
+use either [seqinr](https://cran.r-project.org/package=seqinr) or
 [Biostrings](https://bioconductor.org/packages/Biostrings/) to load your
-sequences.
+sequences (whichever you already happen to have on hand).
 
 ## Quick example
 
@@ -43,11 +44,12 @@ alnDF <- msa2DF(aln)
 msaHeatmap(alnDF)
 ```
 
-<img src="man/figures/README-example-1.png" width="100%" />
+<img src="man/figures/README-example-1.png" alt="" width="100%" />
 
 By default `msaHeatmap()` colours every cell by whether it matches the
-reference sequence (a computed consensus if you don’t pass
-`reference =`). Switch to per-letter colouring with `column = "Letter"`.
+reference sequence (a computed consensus, if you don’t pass
+`reference =`). For per-letter colouring instead, switch to
+`column = "Letter"`.
 
 ## Per-sequence lollipops
 
@@ -62,10 +64,10 @@ alnDF_ll <- msa2DF(aln, drop.gaps = FALSE, keep.consensus = TRUE)
 msaLollipop(alnDF_ll, labels = FALSE)
 ```
 
-<img src="man/figures/README-lollipop-1.png" width="100%" />
+<img src="man/figures/README-lollipop-1.png" alt="" width="100%" />
 
-On smaller alignments (or short windows of larger ones), labels are
-readable and heads can be colour-mapped to any column:
+On smaller alignments (or short windows of larger ones) the labels are
+readable, and the heads can be colour-mapped to any column:
 
 ``` r
 toy <- c(
@@ -81,12 +83,13 @@ msaLollipop(toyDF,
   head.fill.colours = msa_palette_DNA)
 ```
 
-<img src="man/figures/README-lollipop-small-1.png" width="100%" />
+<img src="man/figures/README-lollipop-small-1.png" alt="" width="100%" />
 
 ## Saving plots
 
 `saveHeatmap()` is a `ggsave()` wrapper that picks a reasonable size
-based on the number of sequences and axis text size:
+from the number of sequences and the axis text size (you can always pass
+`height =` / `width =` to override it):
 
 ``` r
 saveHeatmap(msaHeatmap(alnDF), "aln.pdf")
@@ -94,10 +97,11 @@ saveHeatmap(msaHeatmap(alnDF), "aln.pdf")
 
 ## Shell scripts
 
-Two standalone CLIs ship with the package. `inst/scripts/msaHeatmap.R`
-renders an alignment heatmap; `inst/scripts/msaLollipop.R` renders the
-per-sequence lollipop chart (the form used for Supplementary Figure 20
-of Hodgins et al. 2023).
+Two standalone command-line scripts ship with the package.
+`inst/scripts/msaHeatmap.R` renders an alignment heatmap, and
+`inst/scripts/msaLollipop.R` renders the per-sequence lollipop chart
+(again, the form used for Supplementary Figure 20 of Hodgins et
+al. 2023).
 
 ``` r
 system.file("scripts", "msaHeatmap.R",  package = "msaviz")
@@ -111,11 +115,11 @@ Rscript msaHeatmap.R  --input aln.fa --output aln.pdf      --column Aln
 Rscript msaLollipop.R --input aln.fa --output lollipop.pdf --reference E88
 ```
 
-See `--help` for all available options on each.
+See `--help` on each for the full set of options.
 
 ## Composing with PID, groups, and a dendrogram
 
-`composeMSA()` lines the heatmap up (using `patchwork`) with optional
+`composeMSA()` lines the heatmap up (via `patchwork`) with optional
 companion plots: a percent-identity track, a hierarchical-clustering
 dendrogram, and a left-side group annotation strip.
 
@@ -139,7 +143,7 @@ composeMSA(
 )
 ```
 
-<img src="man/figures/README-compose-1.png" width="100%" />
+<img src="man/figures/README-compose-1.png" alt="" width="100%" />
 
 ## More
 
