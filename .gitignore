@@ -24,3 +24,6 @@ inst/doc
 vignettes/msaviz.html
 vignettes/msaviz_files/
 
+
+# Local benchmarking scripts, not part of the package
+/bench/
