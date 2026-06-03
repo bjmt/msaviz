@@ -11,11 +11,6 @@ ggplot2 heatmaps or per-sequence lollipop charts.
 The single note is the expected "New submission" message, as this is the
 first release of the package on CRAN.
 
-During local checking one further note may appear, "unable to verify current
-time", which is an artefact of the checking machine being unable to reach a
-time server and does not reflect anything in the package itself. It does not
-arise on a machine with a verifiable clock.
-
 ## Test environments
 
 * local macOS (darwin), R 4.4.1
