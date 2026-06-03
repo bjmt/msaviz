@@ -2,7 +2,14 @@
 
 This is a new submission of msaviz, version 1.3.0. The package reshapes
 multiple sequence alignments into tidy data frames and renders them as
-ggplot2 heatmaps or per-sequence lollipop charts.
+'ggplot2' heatmaps or per-sequence lollipop charts.
+
+This is a resubmission addressing the points raised in the initial review:
+
+* The software name 'ggplot2' is now single quoted in the Description field.
+* A reference has been added to the Description field in the requested form:
+  Hodgins et al. (2023) <doi:10.1038/s41467-023-41174-0>. This is the work in
+  which the package's visualization approach was first used.
 
 ## R CMD check results
 
